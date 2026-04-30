@@ -1,0 +1,231 @@
+/* Specific styles for the consultation infographic page */
+body {
+  background-color: #020617; /* Deep navy blue */
+}
+
+.mesh-bg-dark {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(20, 83, 45, 0.2) 0%, transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(19, 78, 74, 0.2) 0%, transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(2, 6, 23, 0.5) 0%, transparent 30%);
+  animation: subtleRotate 20s linear infinite;
+}
+
+@keyframes subtleRotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.glass-nav-dark {
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+/* Dashboard Container */
+.dashboard-container {
+  width: 100%;
+  max-width: 1000px;
+  min-height: 600px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Screen Content */
+.screen {
+  display: flex;
+  flex-direction: column;
+  display: none;
+  animation: fadeIn 0.4s ease forwards;
+  flex-grow: 1;
+}
+.screen.active {
+  display: flex;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Custom Scrollbar for inner lists */
+.scrollable::-webkit-scrollbar {
+  width: 6px;
+}
+.scrollable::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollable::-webkit-scrollbar-thumb {
+  background-color: rgba(6, 182, 212, 0.3);
+  border-radius: 10px;
+}
+
+.payment-spinner {
+  width: 40px; height: 40px; border-radius: 50%;
+  border: 4px solid rgba(0, 191, 255, 0.2); border-top-color: #22d3ee;
+  animation: spin 1s linear infinite;
+}
+
+/* Video Call Screen */
+.video-grid {
+  position: relative;
+  width: 100%;
+  flex-grow: 1;
+  background: #020617;
+  border-radius: 1rem;
+  overflow: hidden;
+}
+.video-preview { width: 100%; height: 100%; object-fit: cover; }
+.video-preview.local {
+  position: absolute;
+  width: 180px;
+  height: 120px;
+  bottom: 20px;
+  right: 20px;
+  border-radius: 1rem;
+  border: 3px solid rgba(255,255,255,0.8);
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+}
+.call-status {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0,0,0,0.5);
+  padding: 0.5rem 1rem;
+  border-radius: 99px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.pulsing-dot {
+  width: 8px; height: 8px; background: #10b981; border-radius: 50%;
+  animation: pulse 1.5s infinite;
+}
+.call-controls {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 1rem;
+}
+.control-btn {
+  width: 50px; height: 50px; border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  display: flex; align-items: center; justify-content: center;
+  border: none; cursor: pointer;
+}
+.end-call { background: #ef4444; }
+
+/* Calendar Screen */
+.calendar { text-align: center; }
+.month { font-weight: bold; font-size: 1.1rem; margin-bottom: 1rem; }
+.days, .dates { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.5rem; }
+.days span { font-size: 0.7rem; opacity: 0.6; }
+.dates span { padding: 0.5rem 0; border-radius: 50%; cursor: pointer; }
+.dates span:hover { background: rgba(0, 191, 255, 0.1); }
+.dates span.active { background: #0ea5e9; color: white; }
+.dates span.other-month { opacity: 0.3; }
+.time-slots { margin-top: 1.5rem; }
+.slots { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; }
+.slots span { padding: 0.5rem 1rem; border: 1px solid rgba(0, 191, 255, 0.2); border-radius: 99px; cursor: pointer; }
+.slots span.selected { background: #0ea5e9; color: white; border-color: #0ea5e9; }
+.confirm-btn { width: 100%; padding: 1rem; background: #0ea5e9; color: white; font-weight: bold; border-radius: 0.75rem; margin-top: 1.5rem; }
+
+/* Payment & Prescription */
+.payment-summary { text-align: center; padding: 2rem 0; }
+.fee { font-size: 3rem; font-weight: bold; color: #22d3ee; margin: 0.5rem 0; }
+.pay-btn { width: 100%; padding: 1rem; background: #10b981; color: white; font-weight: bold; border-radius: 0.75rem; }
+.prescription { background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 0.75rem; }
+.prescription h4 { font-weight: bold; border-bottom: 1px solid rgba(0, 191, 255, 0.1); padding-bottom: 0.5rem; margin-bottom: 0.5rem; }
+.prescription p { font-size: 0.9rem; margin-bottom: 0.5rem; }
+
+/* Feature Columns */
+.feature-col {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+  width: 250px;
+}
+.left-col { align-items: flex-end; text-align: right; }
+.right-col { align-items: flex-start; text-align: left; }
+
+.feature-item {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+.left-col .feature-item { flex-direction: row-reverse; }
+
+.feature-icon {
+  width: 50px;
+  height: 50px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: rgba(0, 191, 255, 0.1);
+  border: 1px solid rgba(0, 191, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #22d3ee;
+  box-shadow: 0 0 20px rgba(0, 191, 255, 0.1);
+}
+.feature-text h4 { font-weight: bold; }
+.feature-text p { font-size: 0.85rem; opacity: 0.7; }
+
+/* Subtle UI Details */
+.notification, .health-status {
+  position: absolute;
+  background: rgba(30, 41, 59, 0.8);
+  backdrop-filter: blur(10px);
+  padding: 0.75rem 1.25rem;
+  border-radius: 99px;
+  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  animation: fadeInAndFloat 8s ease-in-out infinite alternate;
+}
+.notification { top: 20%; left: 5%; color: #22d3ee; }
+.health-status { bottom: 20%; right: 5%; color: #ef4444; animation-delay: -4s; }
+
+@keyframes fadeInAndFloat {
+  0%, 100% { opacity: 0; transform: translateY(20px); }
+  10%, 90% { opacity: 1; transform: translateY(0); }
+}
+
+/* PDF Print Styles for Prescription */
+@media print {
+  body { background: white !important; color: black !important; }
+  body * { visibility: hidden; }
+  #prescriptionCard, #prescriptionCard * { 
+    visibility: visible; 
+    color: black !important; 
+  }
+  #prescriptionCard { 
+    position: absolute; 
+    left: 0; 
+    top: 0; 
+    width: 100%; 
+    max-width: none; 
+    box-shadow: none; 
+    border: none; 
+  }
+  .dashboard-container { display: block; border: none; box-shadow: none; background: transparent; margin: 0; padding: 0; }
+  nav { display: none !important; }
+}
+
+@media (max-width: 1024px) {
+  .infographic-container { flex-direction: column; gap: 2rem; }
+  .feature-col { flex-direction: row; width: 100%; justify-content: center; }
+  .left-col, .right-col { text-align: center; }
+  .left-col .feature-item, .right-col .feature-item { flex-direction: column; }
+  .notification, .health-status { display: none; }
+}

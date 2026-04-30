@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Consultation – SAHAYA</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="modern-style.css">
+  <link rel="stylesheet" href="consultation.css">
+</head>
+<body class="relative min-h-screen overflow-x-hidden bg-slate-950 text-slate-100 font-sans">
+  
+  <!-- Animated Mesh Background -->
+  <div class="mesh-bg-dark"></div>
+  <div id="particles" class="fixed inset-0 z-[-1] pointer-events-none overflow-hidden"></div>
+
+  <!-- Auth Gate Overlay -->
+  <div id="authGate" class="fixed inset-0 bg-slate-950/95 backdrop-blur-md z-[100] flex flex-col items-center justify-center p-4">
+    <div class="glass-card p-8 max-w-md w-full text-center border-cyan-500/30">
+      <div class="w-20 h-20 bg-gradient-to-br from-cyan-500 to-blue-600 text-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-cyan-500/50">
+        <i data-lucide="stethoscope" class="w-10 h-10"></i>
+      </div>
+      <h2 class="text-2xl font-bold mb-8 text-white">SAHAYA Tele-Med</h2>
+      
+      <div id="roleSelection" class="flex flex-col gap-4">
+        <button onclick="showDoctorForm()" class="w-full py-4 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 font-bold text-white shadow-lg shadow-cyan-500/30 hover:scale-105 transition">I am a Doctor</button>
+        <button onclick="loginAsPatient()" class="w-full py-4 rounded-xl border-2 border-cyan-500/50 text-cyan-300 font-bold hover:bg-cyan-500/10 transition">I am a Patient</button>
+      </div>
+
+      <div id="doctorForm" class="hidden flex-col gap-4">
+        <input type="text" id="docName" placeholder="Dr. Name (e.g. Dr. Sharma)" class="w-full px-4 py-3 rounded-lg bg-slate-900 border border-cyan-500/30 text-white focus:outline-none focus:border-cyan-500">
+        <input type="text" id="docSpec" placeholder="Specialization (e.g. Cardiologist)" class="w-full px-4 py-3 rounded-lg bg-slate-900 border border-cyan-500/30 text-white focus:outline-none focus:border-cyan-500">
+        <button onclick="loginAsDoctor()" class="w-full py-4 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 font-bold text-white shadow-lg shadow-green-500/30 hover:scale-105 transition mt-2">Go Online</button>
+        <button onclick="backToRoles()" class="text-sm text-slate-400 hover:text-white transition mt-2">← Back</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top Navbar -->
+  <nav class="fixed top-0 w-full z-50 glass-nav-dark border-b border-cyan-500/20 backdrop-blur-xl">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3 cursor-pointer group" onclick="window.location.href='index.html'">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white font-bold shadow-lg shadow-cyan-500/50 group-hover:scale-110 transition-transform">
+          <i data-lucide="video"></i>
+        </div>
+        <div>
+          <div class="text-sm font-bold text-cyan-300">SAHAYA</div>
+          <div class="text-xs text-cyan-400/70">Smart Consultation</div>
+        </div>
+      </div>
+      <a href="index.html" class="px-4 py-2 rounded-full bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/50 text-cyan-300 text-sm font-semibold transition shadow-lg shadow-cyan-500/20">
+        Back to Home
+      </a>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12 flex flex-col items-center">
+    
+    <div class="w-full text-center mb-8">
+      <h1 class="text-3xl md:text-4xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-400 tracking-wider">
+        Tele-Consultation Dashboard
+      </h1>
+      <p class="text-slate-400 mt-2">Connect instantly with verified medical professionals.</p>
+    </div>
+
+    <div class="dashboard-container glass-card rounded-3xl border border-cyan-500/20 bg-slate-900/80 shadow-2xl overflow-hidden p-6 md:p-8">
+      
+          <!-- Screen: Main Menu -->
+          <div class="screen active" id="screen-main">
+            <div class="flex items-center justify-between mb-8 border-b border-slate-700 pb-4">
+              <div>
+                <h2 class="text-2xl font-bold text-white">Welcome, Patient</h2>
+                <p class="text-slate-400 text-sm">How would you like to consult a doctor today?</p>
+              </div>
+              <div class="w-12 h-12 bg-cyan-500/20 rounded-full flex items-center justify-center text-cyan-400">
+                <i data-lucide="user"></i>
+              </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+              <div class="bg-gradient-to-br from-slate-800 to-slate-900 border border-cyan-500/30 p-8 rounded-2xl cursor-pointer hover:border-cyan-400 hover:shadow-[0_0_20px_rgba(6,182,212,0.2)] transition-all group" onclick="showScreen('screen-doctors')">
+                <div class="w-16 h-16 bg-cyan-500/20 rounded-2xl flex items-center justify-center text-cyan-400 mb-6 group-hover:scale-110 transition-transform">
+                  <i data-lucide="video" class="w-8 h-8"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-white mb-2 flex items-center gap-2">Live Consult Now <span id="liveDocBadge" class="hidden text-xs bg-green-500 text-white px-2 py-1 rounded-full animate-pulse shadow-lg shadow-green-500/50">0 Online</span></h3>
+                <p class="text-slate-400">Connect with an available doctor instantly via secure video call.</p>
+              </div>
+
+              <div class="bg-gradient-to-br from-slate-800 to-slate-900 border border-purple-500/30 p-8 rounded-2xl cursor-pointer hover:border-purple-400 hover:shadow-[0_0_20px_rgba(168,85,247,0.2)] transition-all group" onclick="showScreen('screen-calendar')">
+                <div class="w-16 h-16 bg-purple-500/20 rounded-2xl flex items-center justify-center text-purple-400 mb-6 group-hover:scale-110 transition-transform">
+                  <i data-lucide="calendar-plus" class="w-8 h-8"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-white mb-2">Book Appointment</h3>
+                <p class="text-slate-400">Schedule a video consultation for a later date and time.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Screen: Doctor List -->
+          <div class="screen" id="screen-doctors">
+            <div class="flex items-center justify-between mb-8 border-b border-slate-700 pb-4">
+              <div class="flex items-center gap-4">
+                <button onclick="showScreen('screen-main')" class="p-2 bg-slate-800 hover:bg-slate-700 rounded-full transition"><i data-lucide="arrow-left"></i></button>
+                <div>
+                  <h2 class="text-2xl font-bold text-white">Live Doctors Available</h2>
+                  <p class="text-slate-400 text-sm">Select a doctor to begin your consultation.</p>
+                </div>
+              </div>
+              <span class="px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-sm font-bold flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> Live Sync</span>
+            </div>
+            
+            <div class="scrollable overflow-y-auto max-h-[500px] pr-2">
+              <div id="dynamicDoctorsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Populated dynamically via WebSockets -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Screen: Doctor Dashboard -->
+          <div class="screen" id="screen-doctor-dash">
+            <div class="flex items-center justify-between mb-8 border-b border-slate-700 pb-4">
+              <div>
+                <h2 class="text-2xl font-bold text-white">Doctor Dashboard</h2>
+                <p class="text-slate-400 text-sm">You are currently online and visible to patients.</p>
+              </div>
+              <button onclick="location.reload()" class="px-4 py-2 bg-red-500/20 text-red-400 border border-red-500/50 rounded-lg hover:bg-red-500/30 transition flex items-center gap-2"><i data-lucide="power" class="w-4 h-4"></i> Logout</button>
+            </div>
+
+            <div class="flex flex-col items-center justify-center flex-grow py-12">
+              <div class="w-24 h-24 bg-green-500/10 border-2 border-green-500 text-green-500 rounded-full flex items-center justify-center mb-4 mx-auto animate-pulse">
+                <i data-lucide="wifi" class="w-10 h-10"></i>
+              </div>
+              <h4 class="font-bold text-xl text-white" id="displayDocName">Dr. Name</h4>
+              <p class="text-green-400 font-semibold mb-6 flex items-center justify-center gap-2"><span class="w-2 h-2 rounded-full bg-green-400"></span> Online & Available</p>
+              
+              <div class="p-6 bg-slate-800/50 rounded-xl border border-slate-700 w-full max-w-md text-center mb-4">
+                <p class="text-sm text-slate-400">Waiting for patients to connect for consultation...</p>
+              </div>
+              
+              <div id="incomingCallAlert" class="hidden w-full max-w-md p-6 bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl border border-cyan-500 shadow-[0_0_30px_rgba(6,182,212,0.3)] text-center">
+                <p class="font-bold text-cyan-300 mb-1 animate-pulse">Incoming Patient Call...</p>
+                <p class="text-xs text-slate-400 mb-4">Payment Verified: ₹250</p>
+                <button class="w-full py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg transition flex items-center justify-center gap-2" onclick="acceptIncomingCall()">
+                  <i data-lucide="phone" class="inline w-4 h-4 mr-2"></i> Accept Call
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Screen: UPI Payment (NEW) -->
+          <div class="screen" id="screen-upi-payment">
+            <div class="flex items-center justify-between mb-8 border-b border-slate-700 pb-4">
+              <div class="flex items-center gap-4">
+                <button onclick="showScreen('screen-doctors')" class="p-2 bg-slate-800 hover:bg-slate-700 rounded-full transition"><i data-lucide="arrow-left"></i></button>
+                <div>
+                  <h2 class="text-2xl font-bold text-white">Secure Checkout</h2>
+                  <p class="text-slate-400 text-sm">Complete payment to join the call.</p>
+                </div>
+              </div>
+              <i data-lucide="shield-check" class="w-8 h-8 text-green-400"></i>
+            </div>
+            
+            <div class="flex flex-col items-center justify-center flex-grow">
+                <div class="payment-summary" style="padding: 0;">
+                    <p class="text-sm opacity-70">Consultation Fee</p>
+                    <div class="text-5xl font-bold text-cyan-400 my-4">₹ 250</div>
+                    <p class="text-sm opacity-60 mb-8">Includes platform fees and taxes</p>
+                </div>
+                
+                <div id="upi-options" class="w-full max-w-sm flex flex-col gap-4">
+                  <button class="w-full py-4 bg-slate-800 border border-slate-600 rounded-xl hover:bg-slate-700 transition font-bold" onclick="processUpiPayment('GPay')">Pay with GPay</button>
+                  <button class="w-full py-4 bg-slate-800 border border-slate-600 rounded-xl hover:bg-slate-700 transition font-bold" onclick="processUpiPayment('PhonePe')">Pay with PhonePe</button>
+                  <button class="w-full py-4 bg-slate-800 border border-slate-600 rounded-xl hover:bg-slate-700 transition font-bold" onclick="processUpiPayment('Paytm')">Pay with Paytm</button>
+                </div>
+
+                <div id="payment-processing" class="hidden flex-col items-center gap-4 mt-4">
+                  <div class="w-12 h-12 border-4 border-cyan-500/30 border-t-cyan-400 rounded-full animate-spin"></div>
+                  <p class="text-cyan-300 font-semibold animate-pulse">Processing Payment...</p>
+                </div>
+
+                <div id="payment-success" class="hidden flex-col items-center gap-4 mt-4">
+                  <div class="w-20 h-20 rounded-full bg-green-500/20 text-green-500 flex items-center justify-center border-2 border-green-500 mb-2">
+                    <i data-lucide="check" class="w-8 h-8"></i>
+                  </div>
+                  <p class="text-green-400 font-bold text-lg">Payment Successful!</p>
+                  <p class="text-sm opacity-70">Connecting to Doctor...</p>
+                </div>
+            </div>
+          </div>
+
+          <!-- Screen: Video Call -->
+          <div class="screen" id="screen-call">
+             <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                  <span class="font-bold text-white">Live Consultation</span>
+                </div>
+                <span class="text-slate-400 text-sm">00:00</span>
+             </div>
+             
+             <div class="flex flex-col md:flex-row flex-grow gap-4 relative w-full h-full min-h-[400px]">
+                 <div class="video-grid h-full">
+                <!-- Remote Video -->
+                <video id="remoteVideo" class="video-preview" autoplay playsinline></video>
+                <div class="call-status" id="callStatusOverlay">Connecting... <span class="pulsing-dot"></span></div>
+                
+                <!-- Vitals Overlay (For Doctor view simulating smart watch data) -->
+                <div class="health-status">
+                  <i data-lucide="heart-pulse"></i>
+                  <span>Vitals: 82 bpm</span>
+                </div>
+                
+                <!-- Local Video -->
+                <video id="localVideo" class="video-preview local" autoplay playsinline muted></video>
+                
+                <!-- Controls -->
+                <div class="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex items-center gap-4 bg-slate-900/80 backdrop-blur-md px-6 py-3 rounded-full border border-slate-700">
+                  <button class="w-12 h-12 rounded-full bg-slate-700 hover:bg-slate-600 flex items-center justify-center transition"><i data-lucide="mic"></i></button>
+                  <button class="w-12 h-12 rounded-full bg-slate-700 hover:bg-slate-600 flex items-center justify-center transition"><i data-lucide="video"></i></button>
+                  <button class="w-12 h-12 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center transition shadow-lg shadow-red-500/30" onclick="endCall()"><i data-lucide="phone-off"></i></button>
+                </div>
+             </div>
+
+                 <!-- Doctor Rx Panel (Hidden by default) -->
+                 <div id="doctorRxPanel" class="hidden md:w-80 w-full bg-slate-800/90 border border-slate-700 rounded-xl p-5 flex-col gap-3 overflow-y-auto shrink-0 shadow-lg">
+                    <h3 class="font-bold text-cyan-400 border-b border-slate-600 pb-2 mb-2 flex items-center gap-2"><i data-lucide="file-text" class="w-5 h-5"></i> Medical Report</h3>
+                    
+                    <input type="text" id="rxPatName" placeholder="Patient Name" class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2.5 text-sm text-white outline-none focus:border-cyan-500">
+                    <div class="flex gap-2">
+                      <input type="number" id="rxPatAge" placeholder="Age" class="w-1/2 bg-slate-900 border border-slate-600 rounded-lg p-2.5 text-sm text-white outline-none focus:border-cyan-500">
+                      <select id="rxPatGender" class="w-1/2 bg-slate-900 border border-slate-600 rounded-lg p-2.5 text-sm text-white outline-none focus:border-cyan-500">
+                        <option value="Male">Male</option><option value="Female">Female</option><option value="Other">Other</option>
+                      </select>
+                    </div>
+                    <input type="text" id="rxPatWeight" placeholder="Weight (kg)" class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2.5 text-sm text-white outline-none focus:border-cyan-500">
+                    
+                    <textarea id="rxProblem" placeholder="Chief Complaint / Problem" rows="2" class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2.5 text-sm text-white outline-none focus:border-cyan-500 resize-none"></textarea>
+                    <textarea id="rxTests" placeholder="Recommended Tests (optional)" rows="2" class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2.5 text-sm text-white outline-none focus:border-cyan-500 resize-none"></textarea>
+                    <textarea id="rxMeds" placeholder="Medicines Prescribed" rows="3" class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2.5 text-sm text-white outline-none focus:border-cyan-500 resize-none"></textarea>
+                    
+                    <button onclick="sendRxAndEnd()" class="mt-4 w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-lg shadow-lg shadow-green-500/20 transition flex items-center justify-center gap-2">
+                      <i data-lucide="send" class="w-4 h-4"></i> Send & End Call
+                    </button>
+                 </div>
+             </div>
+          </div>
+
+          <!-- Screen: Calendar -->
+          <div class="screen" id="screen-calendar">
+            <div class="flex items-center justify-between mb-8 border-b border-slate-700 pb-4">
+              <div class="flex items-center gap-4">
+                <button onclick="showScreen('screen-main')" class="p-2 bg-slate-800 hover:bg-slate-700 rounded-full transition"><i data-lucide="arrow-left"></i></button>
+                <div>
+                  <h2 class="text-2xl font-bold text-white">Book Appointment</h2>
+                  <p class="text-slate-400 text-sm">Select a preferred date and time.</p>
+                </div>
+              </div>
+            </div>
+            
+            <div class="flex-grow flex flex-col md:flex-row gap-6 w-full">
+              <!-- Calendar -->
+              <div class="flex-1 bg-slate-800/50 border border-slate-700 rounded-xl p-6 shadow-lg">
+                <div class="flex justify-between items-center mb-6">
+                  <button class="p-2 hover:bg-slate-700 rounded-lg text-slate-300 transition"><i data-lucide="chevron-left"></i></button>
+                  <h3 class="text-lg font-bold text-white">May 2026</h3>
+                  <button class="p-2 hover:bg-slate-700 rounded-lg text-slate-300 transition"><i data-lucide="chevron-right"></i></button>
+                </div>
+                <div class="grid grid-cols-7 gap-2 text-center text-sm mb-4 text-slate-400 font-semibold border-b border-slate-700 pb-2">
+                  <div>Su</div><div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div>Sa</div>
+                </div>
+                <div class="grid grid-cols-7 gap-2 text-center" id="calendarDays">
+                  <!-- Filled dynamically by JavaScript -->
+                </div>
+              </div>
+
+              <!-- Time Slots -->
+              <div class="flex-1 bg-slate-800/50 border border-slate-700 rounded-xl p-6 flex flex-col shadow-lg">
+                <h3 class="text-lg font-bold text-white mb-6 border-b border-slate-700 pb-2">Available Slots</h3>
+                <div id="timeSlots" class="grid grid-cols-3 gap-3 mb-8">
+                  <div class="col-span-3 text-center py-8 text-slate-500 italic">Please select a date first.</div>
+                </div>
+                <div class="mt-auto">
+                  <div class="bg-slate-900/80 p-4 rounded-lg border border-slate-600 mb-4 hidden" id="bookingSummary">
+                    <p class="text-sm text-slate-400 mb-1">Selected Appointment:</p>
+                    <p class="text-cyan-400 font-bold text-lg flex items-center gap-2"><i data-lucide="calendar-check" class="w-5 h-5"></i> <span id="summaryText">-</span></p>
+                  </div>
+                  <button id="confirmBookingBtn" disabled class="w-full py-3 bg-slate-700 text-slate-400 font-bold rounded-lg transition-all cursor-not-allowed flex items-center justify-center gap-2" onclick="confirmAppointment()">
+                    Confirm Appointment
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Screen: Prescription -->
+          <div class="screen" id="screen-prescription">
+            <div class="flex items-center justify-between mb-8 border-b border-slate-700 pb-4">
+              <div class="flex items-center gap-4">
+                <button onclick="showScreen('screen-main')" class="p-2 bg-slate-800 hover:bg-slate-700 rounded-full transition"><i data-lucide="home"></i></button>
+                <div>
+                  <h2 class="text-2xl font-bold text-white">Consultation Complete</h2>
+                  <p class="text-slate-400 text-sm">Review your digital prescription.</p>
+                </div>
+              </div>
+              <button onclick="window.print()" class="px-4 py-2 bg-cyan-500/20 text-cyan-400 rounded-lg flex items-center gap-2 hover:bg-cyan-500/30 transition"><i data-lucide="download" class="w-4 h-4"></i> Save PDF</button>
+            </div>
+            
+            <div id="prescriptionCard" class="bg-white text-slate-900 p-8 rounded-xl w-full max-w-2xl mx-auto shadow-lg relative overflow-hidden">
+               <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-cyan-500 to-blue-600"></div>
+               <div class="flex justify-between items-start mb-8 border-b pb-4 border-slate-200">
+                 <div>
+                   <h3 class="text-2xl font-bold text-blue-900" id="rxDocNameOut">Dr. Name</h3>
+                   <p class="text-sm text-slate-600">Tele-Consultation | Sahaya Verified</p>
+                 </div>
+                 <div class="text-right">
+                   <p class="font-bold text-slate-700">Date: <span class="font-normal text-slate-600" id="rxDateOut">Today</span></p>
+                 </div>
+               </div>
+               
+               <div class="mb-6 bg-slate-50 p-4 rounded-lg border border-slate-100">
+                 <h4 class="font-bold text-slate-800 mb-1 text-sm uppercase tracking-wide">Patient Details</h4>
+                 <p class="text-slate-700" id="rxPatDetailsOut"><strong>Name:</strong> - | <strong>Age:</strong> - | <strong>Gender:</strong> - | <strong>Weight:</strong> -</p>
+               </div>
+               
+               <div class="mb-6">
+                 <h4 class="font-bold text-slate-800 mb-2 border-b border-slate-200 inline-block pb-1">Chief Complaint / Diagnosis</h4>
+                 <p class="text-slate-700 whitespace-pre-wrap" id="rxProblemOut">-</p>
+               </div>
+
+               <div class="mb-6">
+                 <h4 class="font-bold text-slate-800 mb-2 border-b border-slate-200 inline-block pb-1">Recommended Tests</h4>
+                 <p class="text-slate-700 whitespace-pre-wrap" id="rxTestsOut">-</p>
+               </div>
+               
+               <div class="mb-6">
+                 <h4 class="font-bold text-slate-800 mb-3 border-b border-slate-200 inline-block pb-1">Medication (Rx)</h4>
+                 <p class="text-slate-800 whitespace-pre-wrap font-medium" id="rxMedsOut">-</p>
+               </div>
+               
+               <div class="mt-8 pt-4 border-t border-dashed border-slate-300">
+                 <p class="font-bold text-slate-800">Doctor's Advice:</p>
+                 <p class="text-slate-600 text-sm">Take complete rest. Drink plenty of warm fluids. Follow up if symptoms persist.</p>
+               </div>
+            </div>
+          </div>
+
+    </div>
+  </main>
+
+  <script>
+    lucide.createIcons();
+    
+    function showScreen(screenId) {
+      document.querySelectorAll('.smartphone-screen .screen').forEach(screen => {
+        screen.classList.remove('active');
+      });
+      document.getElementById(screenId).classList.add('active');
+    }
+
+    // --- Auth & WebSocket Logic ---
+    let ws;
+    let userRole = null;
+    let myDocId = null;
+    let myUserId = null;
+    let currentPatientId = null;
+    let selectedDocId = null;
+    let localStream = null;
+    let peerConn = null;
+    const iceServers = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
+
+    function getWebSocketURL() {
+      if (window.location.protocol === "file:") return "ws://localhost:5500";
+      const WS_PROTOCOL = window.location.protocol === "https:" ? "wss:" : "ws:";
+      const WS_PORT = window.location.port ? `:${window.location.port}` : "";
+      return `${WS_PROTOCOL}//${window.location.hostname}${WS_PORT}`;
+    }
+
+    function initConsultWS() {
+      ws = new WebSocket(getWebSocketURL());
+      
+      ws.onopen = () => {
+        if (userRole === 'doctor') {
+          const name = document.getElementById('docName').value.trim() || "Dr. Sharma";
+          const spec = document.getElementById('docSpec').value.trim() || "General Physician";
+          document.getElementById('displayDocName').textContent = name;
+          
+          ws.send(JSON.stringify({
+            type: 'doctorLogin',
+            doctorInfo: {
+              id: myDocId,
+              name: name,
+              spec: spec,
+              rating: (Math.random() * (5.0 - 4.5) + 4.5).toFixed(1)
+            }
+          }));
+        } else if (userRole === 'patient') {
+          ws.send(JSON.stringify({ type: 'patientLogin', patientId: myUserId }));
+        }
+      };
+
+      ws.onmessage = (e) => {
+        const data = JSON.parse(e.data);
+        if (data.type === 'activeDoctors') {
+          renderDoctorsList(data.doctors);
+        } else if (data.type === 'incomingCall' && userRole === 'doctor') {
+          document.getElementById('incomingCallAlert').classList.remove('hidden');
+          currentPatientId = data.patientId;
+        } else if (data.type === 'consultWebRTC') {
+          handleWebRTCMessage(data);
+        } else if (data.type === 'sendPrescription') {
+          populatePrescription(data.report);
+          endCall(); // Transition patient to prescription screen
+        }
+      };
+      
+      ws.onclose = () => setTimeout(initConsultWS, 3000);
+    }
+
+    function renderDoctorsList(doctors) {
+      const list = document.getElementById('dynamicDoctorsList');
+      const badge = document.getElementById('liveDocBadge');
+      
+      // Update the live badge on the main menu
+      if (badge) {
+        if (doctors && doctors.length > 0) {
+          badge.textContent = `${doctors.length} Online`;
+          badge.classList.remove('hidden');
+        } else {
+          badge.classList.add('hidden');
+        }
+      }
+
+      if (!doctors || doctors.length === 0) {
+        list.innerHTML = `
+          <div class="text-center text-slate-400 mt-10">
+            <i data-lucide="user-x" class="w-12 h-12 mx-auto mb-4 opacity-50"></i>
+            <p>No doctors currently online.</p>
+            <p class="text-xs mt-2">Open this page in another browser window and login as a Doctor to test!</p>
+          </div>`;
+        lucide.createIcons();
+        return;
+      }
+
+      list.innerHTML = doctors.map(doc => `
+        <div class="p-6 bg-slate-800/50 border border-slate-700 rounded-xl hover:border-cyan-500/50 transition-all flex flex-col justify-between">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white font-bold text-lg">
+              ${doc.name.replace(/Dr\.?\s*/i, '').charAt(0).toUpperCase() || 'D'}
+            </div>
+            <div class="flex-1">
+              <h4 class="font-bold">${doc.name}</h4>
+              <p class="text-xs text-cyan-300">${doc.spec}</p>
+              <div class="flex items-center gap-1 text-xs mt-1 text-yellow-400">
+                <i data-lucide="star" class="w-3 h-3 fill-current"></i> ${doc.rating} (Live)
+              </div>
+            </div>
+            <div class="text-xs font-bold text-green-400 bg-green-400/10 px-2 py-1 rounded-md">Online</div>
+          </div>
+          <button class="w-full py-2 bg-cyan-500 hover:bg-cyan-600 text-white font-bold rounded-lg transition" onclick="startPaymentFlow('${doc.id}')">
+            Pay ₹250 & Join Call
+          </button>
+        </div>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    function startPaymentFlow(docId) {
+      selectedDocId = docId;
+      showScreen('screen-upi-payment');
+      document.getElementById('upi-options').classList.remove('hidden');
+      document.getElementById('upi-options').classList.add('flex');
+      document.getElementById('payment-processing').classList.add('hidden');
+      document.getElementById('payment-processing').classList.remove('flex');
+      document.getElementById('payment-success').classList.add('hidden');
+      document.getElementById('payment-success').classList.remove('flex');
+    }
+
+    function processUpiPayment(app) {
+      // Hide options, show spinner
+      document.getElementById('upi-options').classList.add('hidden');
+      document.getElementById('upi-options').classList.remove('flex');
+      document.getElementById('payment-processing').classList.remove('hidden');
+      document.getElementById('payment-processing').classList.add('flex');
+
+      // Simulate network request for UPI transaction
+      setTimeout(() => {
+        document.getElementById('payment-processing').classList.add('hidden');
+        document.getElementById('payment-processing').classList.remove('flex');
+        document.getElementById('payment-success').classList.remove('hidden');
+        document.getElementById('payment-success').classList.add('flex');
+
+        // Transition to live video call after success
+        setTimeout(async () => { 
+          showScreen('screen-call'); 
+          await startLocalVideo();
+          // Ring the specific doctor's dashboard!
+          if (ws && ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ type: 'initiateCall', targetDocId: selectedDocId, patientId: myUserId }));
+          }
+        }, 1500);
+      }, 2000);
+    }
+
+    function showDoctorForm() {
+      document.getElementById('roleSelection').classList.add('hidden');
+      document.getElementById('doctorForm').classList.remove('hidden');
+      document.getElementById('doctorForm').classList.add('flex');
+    }
+    function backToRoles() {
+      document.getElementById('roleSelection').classList.remove('hidden');
+      document.getElementById('doctorForm').classList.add('hidden');
+      document.getElementById('doctorForm').classList.remove('flex');
+    }
+    function loginAsDoctor() {
+      userRole = 'doctor';
+      myDocId = 'doc_' + Date.now();
+      document.getElementById('authGate').classList.add('hidden');
+      showScreen('screen-doctor-dash');
+      initConsultWS();
+    }
+    function loginAsPatient() {
+      userRole = 'patient';
+      myUserId = 'pat_' + Date.now();
+      document.getElementById('authGate').classList.add('hidden');
+      showScreen('screen-main');
+      initConsultWS();
+    }
+
+    // --- WebRTC Video Feed Methods ---
+    async function startLocalVideo() {
+      try {
+        // Try to get both video (front camera preferred) and audio
+        localStream = await navigator.mediaDevices.getUserMedia({ 
+          video: { facingMode: 'user', width: { ideal: 640 } }, 
+          audio: true 
+        });
+        const localVid = document.getElementById('localVideo');
+        localVid.srcObject = localStream;
+        localVid.play().catch(e => console.warn("Autoplay blocked for local video", e));
+      } catch(e) {
+        console.error('Camera error:', e);
+        alert('Camera in use or blocked. Falling back to Audio-only mode.\n\n(Note: If testing 2 tabs on one PC, the webcam can only be used by one tab!)');
+        // Fallback to audio-only if the camera is locked by another tab
+        try {
+          localStream = await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
+          console.log("Fell back to audio-only stream.");
+        } catch(audioErr) {
+          console.error("Audio fallback also failed:", audioErr);
+        }
+      }
+    }
+
+    async function startWebRTC(isCaller, targetId) {
+      if (!localStream) await startLocalVideo();
+      
+      peerConn = new RTCPeerConnection(iceServers);
+      localStream.getTracks().forEach(track => peerConn.addTrack(track, localStream));
+      
+      peerConn.ontrack = (event) => {
+        const remoteVid = document.getElementById('remoteVideo');
+        if (remoteVid.srcObject !== event.streams[0]) {
+          remoteVid.srcObject = event.streams[0];
+          remoteVid.play().catch(e => console.warn("Autoplay blocked for remote video", e));
+        }
+        document.getElementById('callStatusOverlay').style.display = 'none';
+      };
+      
+      peerConn.onicecandidate = (event) => {
+        if (event.candidate && ws && ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify({
+            type: 'consultWebRTC', subtype: 'ice', candidate: event.candidate,
+            targetType: userRole === 'doctor' ? 'patient' : 'doctor',
+            targetId: targetId,
+            senderId: userRole === 'doctor' ? myDocId : myUserId
+          }));
+        }
+      };
+
+      if (isCaller) {
+        const offer = await peerConn.createOffer();
+        await peerConn.setLocalDescription(offer);
+        ws.send(JSON.stringify({
+          type: 'consultWebRTC', subtype: 'offer', offer: offer,
+          targetType: 'patient', targetId: targetId, senderId: myDocId
+        }));
+      }
+    }
+
+    async function handleWebRTCMessage(data) {
+      if (data.subtype === 'offer') {
+        if (!localStream) await startLocalVideo();
+        if (!peerConn) await startWebRTC(false, data.senderId);
+        
+        await peerConn.setRemoteDescription(new RTCSessionDescription(data.offer));
+        const answer = await peerConn.createAnswer();
+        await peerConn.setLocalDescription(answer);
+        ws.send(JSON.stringify({
+          type: 'consultWebRTC', subtype: 'answer', answer: answer,
+          targetType: 'doctor', targetId: data.senderId, senderId: myUserId
+        }));
+      } else if (data.subtype === 'answer') {
+        await peerConn.setRemoteDescription(new RTCSessionDescription(data.answer));
+      } else if (data.subtype === 'ice') {
+        if (peerConn && data.candidate) await peerConn.addIceCandidate(new RTCIceCandidate(data.candidate));
+      }
+    }
+    
+    async function acceptIncomingCall() {
+      document.getElementById('incomingCallAlert').classList.add('hidden');
+      document.getElementById('doctorRxPanel').classList.remove('hidden');
+      document.getElementById('doctorRxPanel').classList.add('flex');
+      showScreen('screen-call');
+      await startLocalVideo();
+      startWebRTC(true, currentPatientId); // Doctor creates the offer
+    }
+
+    function sendRxAndEnd() {
+      const report = {
+        docName: document.getElementById('displayDocName').textContent,
+        patName: document.getElementById('rxPatName').value,
+        age: document.getElementById('rxPatAge').value,
+        gender: document.getElementById('rxPatGender').value,
+        weight: document.getElementById('rxPatWeight').value,
+        problem: document.getElementById('rxProblem').value,
+        tests: document.getElementById('rxTests').value,
+        meds: document.getElementById('rxMeds').value,
+        date: new Date().toLocaleDateString()
+      };
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type: 'sendPrescription', targetId: currentPatientId, report: report }));
+      }
+      populatePrescription(report);
+      endCall();
+    }
+
+    function populatePrescription(report) {
+      document.getElementById('rxDocNameOut').textContent = report.docName || 'Doctor';
+      document.getElementById('rxDateOut').textContent = report.date;
+      document.getElementById('rxPatDetailsOut').innerHTML = `<strong>Name:</strong> ${report.patName || 'N/A'} | <strong>Age:</strong> ${report.age || '-'} | <strong>Gender:</strong> ${report.gender || '-'} | <strong>Weight:</strong> ${report.weight ? report.weight + ' kg' : '-'}`;
+      document.getElementById('rxProblemOut').textContent = report.problem || 'None specified';
+      document.getElementById('rxTestsOut').textContent = report.tests || 'None specified';
+      document.getElementById('rxMedsOut').textContent = report.meds || 'None specified';
+    }
+
+    function endCall() {
+      if (peerConn) { peerConn.close(); peerConn = null; }
+      if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
+      showScreen('screen-prescription');
+    }
+
+    // --- Calendar & Booking Logic ---
+    let selectedDate = null;
+    let selectedTime = null;
+
+    function renderCalendar() {
+      const daysContainer = document.getElementById('calendarDays');
+      daysContainer.innerHTML = '';
+      
+      // May 2026 starts on a Friday (index 5)
+      for(let i = 0; i < 5; i++) {
+        daysContainer.innerHTML += `<div class="p-2"></div>`;
+      }
+      for(let i = 1; i <= 31; i++) {
+        // Randomly disable some dates to make it realistic (e.g. fully booked)
+        const isFull = (i === 4 || i === 12 || i === 18 || i === 25);
+        if (isFull) {
+          daysContainer.innerHTML += `<button disabled class="date-btn p-2 rounded-full text-slate-600 cursor-not-allowed w-10 h-10 mx-auto flex items-center justify-center line-through">${i}</button>`;
+        } else {
+          daysContainer.innerHTML += `<button onclick="selectDate(${i})" id="date-${i}" class="date-btn p-2 rounded-full hover:bg-cyan-500/20 text-slate-300 transition w-10 h-10 mx-auto flex items-center justify-center">${i}</button>`;
+        }
+      }
+    }
+
+    function selectDate(day) {
+      document.querySelectorAll('.date-btn').forEach(btn => {
+        if (!btn.disabled) btn.className = "date-btn p-2 rounded-full hover:bg-cyan-500/20 text-slate-300 transition w-10 h-10 mx-auto flex items-center justify-center";
+      });
+      document.getElementById(`date-${day}`).className = "date-btn p-2 rounded-full bg-cyan-500 text-white font-bold shadow-lg shadow-cyan-500/40 w-10 h-10 mx-auto flex items-center justify-center";
+      
+      selectedDate = `May ${day}, 2026`;
+      renderTimeSlots(day);
+    }
+
+    function renderTimeSlots(day) {
+      const slotsContainer = document.getElementById('timeSlots');
+      const allTimes = ['09:00 AM', '09:30 AM', '10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM', '02:00 PM', '02:30 PM', '03:00 PM', '03:30 PM', '04:00 PM', '05:00 PM'];
+      
+      // Filter out slots to simulate existing bookings
+      const availableTimes = allTimes.filter((_, idx) => (day + idx) % 3 !== 0);
+      
+      if (availableTimes.length === 0) {
+        slotsContainer.innerHTML = `<div class="col-span-3 text-center py-8 text-rose-400 italic">No slots available on this date.</div>`;
+      } else {
+        slotsContainer.innerHTML = availableTimes.map(t => {
+          const idStr = t.replace(/[: ]/g, '');
+          return `<button onclick="selectTime('${t}')" id="time-${idStr}" class="time-btn py-2 px-3 border border-slate-600 rounded-lg text-slate-300 hover:border-cyan-500 hover:text-cyan-400 transition text-sm font-medium bg-slate-800/80">${t}</button>`;
+        }).join('');
+      }
+      selectedTime = null;
+      updateBookingSummary();
+    }
+
+    function selectTime(time) {
+      document.querySelectorAll('.time-btn').forEach(btn => btn.classList.remove('bg-cyan-500/20', 'border-cyan-500', 'text-cyan-400'));
+      document.getElementById(`time-${time.replace(/[: ]/g, '')}`).classList.add('bg-cyan-500/20', 'border-cyan-500', 'text-cyan-400');
+      
+      selectedTime = time;
+      updateBookingSummary();
+    }
+
+    function updateBookingSummary() {
+      const summaryBox = document.getElementById('bookingSummary');
+      const btn = document.getElementById('confirmBookingBtn');
+      
+      if (selectedDate && selectedTime) {
+        summaryBox.classList.remove('hidden');
+        document.getElementById('summaryText').textContent = `${selectedDate} at ${selectedTime}`;
+        btn.disabled = false;
+        btn.className = "w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold rounded-lg transition shadow-lg shadow-cyan-500/20";
+      } else {
+        summaryBox.classList.add('hidden');
+        btn.disabled = true;
+        btn.className = "w-full py-3 bg-slate-700 text-slate-400 font-bold rounded-lg transition-all cursor-not-allowed";
+      }
+      lucide.createIcons();
+    }
+
+    function confirmAppointment() {
+      alert(`✅ Appointment Successfully Booked!\n\nDate: ${selectedDate}\nTime: ${selectedTime}\n\nYou will receive an SMS reminder before your consultation starts.`);
+      
+      // Reset UI
+      selectedDate = null;
+      selectedTime = null;
+      renderCalendar();
+      document.getElementById('timeSlots').innerHTML = `<div class="col-span-3 text-center py-8 text-slate-500 italic">Please select a date first.</div>`;
+      updateBookingSummary();
+      showScreen('screen-main');
+    }
+
+    // Initialize calendar on load
+    window.addEventListener('load', renderCalendar);
+  </script>
+</body>
+</html>

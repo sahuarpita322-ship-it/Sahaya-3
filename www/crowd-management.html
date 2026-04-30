@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crowd Management System – SAHAYA</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="modern-style.css">
+  <link rel="stylesheet" href="crowd-management.css">
+  
+  <style>
+    .custom-ambulance {
+      transition: transform 0.3s linear !important;
+      background: transparent !important;
+      border: none !important;
+    }
+    .animated-route {
+      stroke-dasharray: 10, 10;
+      animation: dash 1s linear infinite;
+    }
+    @keyframes dash {
+      to { stroke-dashoffset: -20; }
+    }
+    .leaflet-container {
+      z-index: 1 !important;
+    }
+  </style>
+</head>
+
+<body class="relative min-h-screen overflow-x-hidden bg-gradient-to-br from-slate-950 via-blue-950 to-slate-950 text-slate-100 dark:text-slate-100 transition-colors duration-500 font-sans">
+  
+  <!-- Animated Mesh Background & Particles -->
+  <div class="mesh-bg-dark"></div>
+  <div id="particles" class="fixed inset-0 z-[-1] pointer-events-none overflow-hidden"></div>
+
+  <!-- Top Navbar -->
+  <nav class="fixed top-0 w-full z-50 glass-nav-dark border-b border-cyan-500/20 backdrop-blur-xl transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <!-- Logo -->
+      <div class="flex items-center gap-3 cursor-pointer group" onclick="window.location.href='index.html'">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white font-bold shadow-lg shadow-cyan-500/50 group-hover:scale-110 transition-transform">
+          <i data-lucide="map"></i>
+        </div>
+        <div>
+          <div class="text-sm font-bold text-cyan-300">SAHAYA</div>
+          <div class="text-xs text-cyan-400/70">Crowd Management</div>
+        </div>
+      </div>
+
+      <!-- Title -->
+      <h1 class="text-2xl font-extrabold text-center bg-clip-text text-transparent bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-400 tracking-wider">
+        Crowd Management System
+      </h1>
+
+      <!-- Actions -->
+      <div class="flex items-center gap-4">
+        <button id="theme-toggle" class="p-2 rounded-full bg-white/10 hover:bg-white/20 border border-cyan-500/30 transition ripple" aria-label="Toggle Theme">
+          <i data-lucide="moon" class="w-5 h-5"></i>
+        </button>
+        <a href="index.html" class="px-4 py-2 rounded-full bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/50 text-cyan-300 text-sm font-semibold transition shadow-lg shadow-cyan-500/20">
+          Back to Home
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12">
+    
+    <!-- Real-Time Route Planner Section -->
+    <section class="mb-12 animate-fade-in">
+      <div class="bg-gradient-to-br from-slate-900/80 via-blue-900/60 to-slate-900/80 rounded-3xl border border-cyan-500/30 backdrop-blur-xl shadow-2xl shadow-cyan-500/20 p-8 overflow-hidden">
+        
+        <!-- Animated Background -->
+        <div class="absolute inset-0 pointer-events-none">
+          <div class="absolute top-20 right-20 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl animate-pulse"></div>
+        </div>
+
+        <div class="relative z-10">
+          <h2 class="text-3xl font-extrabold mb-6">
+            <span class="bg-clip-text text-transparent bg-gradient-to-r from-cyan-300 to-blue-400">Smart Route Planner</span>
+          </h2>
+
+          <!-- Route Input Section -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            
+            <!-- Origin Input -->
+            <div>
+              <label class="block text-sm font-semibold text-cyan-300 mb-2">📍 Starting Location</label>
+              <div class="relative">
+                <input type="text" id="originInput" placeholder="Enter your location or use GPS" 
+                       class="w-full px-4 py-3 rounded-lg bg-slate-800/50 border border-cyan-500/30 text-white placeholder-slate-400 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition" />
+                <button id="useCurrentLocation" class="absolute right-3 top-1/2 -translate-y-1/2 text-cyan-400 hover:text-cyan-300 transition" title="Use current location">
+                  <i data-lucide="crosshair" class="w-5 h-5"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Destination Input -->
+            <div>
+              <label class="block text-sm font-semibold text-cyan-300 mb-2">🎯 Destination</label>
+              <div class="relative">
+                <input type="text" id="destinationInput" placeholder="Where would you like to go?" 
+                       class="w-full px-4 py-3 rounded-lg bg-slate-800/50 border border-cyan-500/30 text-white placeholder-slate-400 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition" />
+                <button id="searchDestination" class="absolute right-3 top-1/2 -translate-y-1/2 text-cyan-400 hover:text-cyan-300 transition">
+                  <i data-lucide="search" class="w-5 h-5"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Route Options -->
+          <div class="flex flex-wrap gap-4 mb-8">
+            <button id="findRouteBtn" class="px-6 py-3 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold shadow-lg shadow-cyan-500/50 transition-all hover:scale-105 active:scale-95 flex items-center gap-2">
+              <i data-lucide="route" class="w-5 h-5"></i> Find Crowd-Free Route
+            </button>
+            <button id="toggleVoiceBtn" class="px-6 py-3 rounded-lg bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/50 text-purple-300 font-bold transition flex items-center gap-2">
+              <i data-lucide="volume-2" class="w-5 h-5"></i> Voice Guide
+            </button>
+            <button id="emergencyRouteBtn" class="px-6 py-3 rounded-lg bg-red-500/20 hover:bg-red-500/30 border border-red-500/50 text-red-300 font-bold transition flex items-center gap-2">
+              <i data-lucide="siren" class="w-5 h-5"></i> Emergency Mode
+            </button>
+          </div>
+
+          <!-- Real-Time Status -->
+          <div id="routeStatus" class="hidden p-4 rounded-lg bg-cyan-500/10 border border-cyan-500/30 mb-6">
+            <div class="flex items-center gap-2 mb-2">
+              <div class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></div>
+              <span class="text-sm font-semibold text-cyan-300" id="statusText">Calculating route...</span>
+            </div>
+            <div class="text-xs text-slate-400" id="statusDetails"></div>
+          </div>
+
+          <!-- Route Information Display -->
+          <div id="routeInfo" class="hidden grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="p-4 rounded-lg bg-slate-800/50 border border-cyan-500/20">
+              <div class="text-xs text-cyan-300 font-semibold">Distance</div>
+              <div class="text-2xl font-bold text-cyan-300" id="distanceDisplay">-</div>
+            </div>
+            <div class="p-4 rounded-lg bg-slate-800/50 border border-cyan-500/20">
+              <div class="text-xs text-cyan-300 font-semibold">Duration</div>
+              <div class="text-2xl font-bold text-cyan-300" id="durationDisplay">-</div>
+            </div>
+            <div class="p-4 rounded-lg bg-slate-800/50 border border-cyan-500/20">
+              <div class="text-xs text-green-300 font-semibold">Crowd Level</div>
+              <div class="text-2xl font-bold text-green-400" id="crowdLevelDisplay">Safe</div>
+            </div>
+            <div class="p-4 rounded-lg bg-slate-800/50 border border-cyan-500/20">
+              <div class="text-xs text-yellow-300 font-semibold">ETA</div>
+              <div class="text-2xl font-bold text-yellow-300" id="etaDisplay">-</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Header Section -->
+    <section class="text-center mb-16 animate-fade-in">
+      <h2 class="text-4xl md:text-5xl font-extrabold mb-4">
+        <span class="bg-clip-text text-transparent bg-gradient-to-r from-cyan-300 to-blue-400">Real-Time</span>
+        <span class="text-white"> Crowd Intelligence</span>
+      </h2>
+      <p class="text-lg text-slate-400 max-w-2xl mx-auto">
+        Smart city integration with AI-powered crowd density detection, dynamic routing, and emergency evacuation guidance
+      </p>
+    </section>
+
+    <!-- Central Infographic Container -->
+    <div class="relative bg-gradient-to-br from-slate-900/80 via-blue-900/60 to-slate-900/80 rounded-3xl border border-cyan-500/30 backdrop-blur-xl shadow-2xl shadow-cyan-500/20 p-8 mb-12 overflow-hidden">
+      
+      <!-- Animated Background Elements -->
+      <div class="absolute inset-0 pointer-events-none">
+        <div class="absolute top-20 right-20 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div class="absolute bottom-20 left-20 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
+      </div>
+
+      <!-- Central Map Area -->
+      <div class="relative z-10 grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+        
+        <!-- Left Features Column -->
+        <div class="flex flex-col gap-6 justify-center">
+          <!-- Feature 1: Crowd Density Detection -->
+          <div class="feature-card">
+            <div class="feature-icon cyan">
+              <i data-lucide="heat-wave"></i>
+            </div>
+            <div class="feature-content">
+              <h3>Crowd Density</h3>
+              <p>Real-time heatmap</p>
+            </div>
+          </div>
+
+          <!-- Feature 2: Route Optimization -->
+          <div class="feature-card">
+            <div class="feature-icon blue">
+              <i data-lucide="route"></i>
+            </div>
+            <div class="feature-content">
+              <h3>Smart Routing</h3>
+              <p>AI-optimized paths</p>
+            </div>
+          </div>
+
+          <!-- Feature 3: Alerts -->
+          <div class="feature-card">
+            <div class="feature-icon red">
+              <i data-lucide="alert-circle"></i>
+            </div>
+            <div class="feature-content">
+              <h3>Overcrowding</h3>
+              <p>Risk alerts</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Center: Dashboard Map -->
+        <div class="relative">
+          <!-- Smart City Map Container -->
+          <div class="smart-map-container">
+            <!-- Real-time Leaflet Map -->
+            <div id="smart-map" class="w-full h-80 rounded-2xl border border-cyan-500/40 overflow-hidden shadow-2xl shadow-cyan-500/20 bg-gradient-to-b from-slate-800 to-slate-900">
+              <div id="smart-map-container" style="width: 100%; height: 100%;"></div>
+            </div>
+          </div>
+
+          <!-- Info Box -->
+          <div class="mt-4 px-4 py-3 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-center">
+            <p class="text-sm text-cyan-300 font-semibold">Live Crowd Density Map</p>
+            <p class="text-xs text-slate-400 mt-1">Green = Low | Yellow = Medium | Red = High</p>
+          </div>
+        </div>
+
+        <!-- Right Features Column -->
+        <div class="flex flex-col gap-6 justify-center">
+          <!-- Feature 4: Evacuation Guidance -->
+          <div class="feature-card">
+            <div class="feature-icon green">
+              <i data-lucide="shield-alert"></i>
+            </div>
+            <div class="feature-content">
+              <h3>Evacuation</h3>
+              <p>Safe path guidance</p>
+            </div>
+          </div>
+
+          <!-- Feature 5: Event Mode -->
+          <div class="feature-card">
+            <div class="feature-icon purple">
+              <i data-lucide="calendar-days"></i>
+            </div>
+            <div class="feature-content">
+              <h3>Event Mode</h3>
+              <p>Festival management</p>
+            </div>
+          </div>
+
+          <!-- Feature 6: Prediction -->
+          <div class="feature-card">
+            <div class="feature-icon yellow">
+              <i data-lucide="zap"></i>
+            </div>
+            <div class="feature-content">
+              <h3>AI Prediction</h3>
+              <p>Future congestion</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Features Row -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8 pt-8 border-t border-cyan-500/20">
+        
+        <!-- Feature 7: Data Integration -->
+        <div class="feature-card-horizontal">
+          <div class="feature-icon-small cyan">
+            <i data-lucide="network"></i>
+          </div>
+          <div class="feature-content-horizontal">
+            <h3>Multi-Source Data</h3>
+            <p class="text-xs">GPS, CCTV, User Reports</p>
+          </div>
+        </div>
+
+        <!-- Feature 8: Volunteer Coordination -->
+        <div class="feature-card-horizontal">
+          <div class="feature-icon-small green">
+            <i data-lucide="users"></i>
+          </div>
+          <div class="feature-content-horizontal">
+            <h3>Volunteer Network</h3>
+            <p class="text-xs">Nearby coordination system</p>
+          </div>
+        </div>
+
+        <!-- Feature 9: Real-Time Analytics -->
+        <div class="feature-card-horizontal">
+          <div class="feature-icon-small blue">
+            <i data-lucide="bar-chart-3"></i>
+          </div>
+          <div class="feature-content-horizontal">
+            <h3>Real-Time Analytics</h3>
+            <p class="text-xs">Live metrics dashboard</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats & Metrics Section -->
+    <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <!-- Stat 1 -->
+      <div class="stat-card">
+        <div class="stat-value">98.5%</div>
+        <div class="stat-label">Route Accuracy</div>
+        <div class="stat-icon cyan">
+          <i data-lucide="target"></i>
+        </div>
+      </div>
+
+      <!-- Stat 2 -->
+      <div class="stat-card">
+        <div class="stat-value">4.2s</div>
+        <div class="stat-label">Response Time</div>
+        <div class="stat-icon red">
+          <i data-lucide="zap"></i>
+        </div>
+      </div>
+
+      <!-- Stat 3 -->
+      <div class="stat-card">
+        <div class="stat-value">15K+</div>
+        <div class="stat-label">Volunteers Active</div>
+        <div class="stat-icon green">
+          <i data-lucide="users"></i>
+        </div>
+      </div>
+
+      <!-- Stat 4 -->
+      <div class="stat-card">
+        <div class="stat-value">99.7%</div>
+        <div class="stat-label">Uptime SLA</div>
+        <div class="stat-icon purple">
+          <i data-lucide="shield-check"></i>
+        </div>
+      </div>
+    </section>
+
+    <!-- Call to Action -->
+    <section class="mt-16 text-center">
+      <div class="inline-block px-8 py-6 rounded-2xl bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/40 backdrop-blur-sm">
+        <h3 class="text-2xl font-bold text-white mb-2">Ready to Deploy?</h3>
+        <p class="text-slate-300 mb-6">Implement SAHAYA Crowd Management for your city today</p>
+        <button class="px-8 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold shadow-lg shadow-cyan-500/50 transition-all hover:scale-105 active:scale-95">
+          Get Started
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Real-time Crowd Management System Script -->
+  <script src="crowd-management-realtime.js"></script>
+  
+  <style>
+    /* Leaflet map container styling */
+    #smart-map-container .leaflet-control-attribution {
+      display: none !important;
+    }
+    
+    #smart-map-container .leaflet-tile-pane {
+      opacity: 0.8;
+      filter: contrast(1.2) brightness(0.9);
+    }
+  </style>
+</body>
+</html>

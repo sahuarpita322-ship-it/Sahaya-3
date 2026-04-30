@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Driver Panel - LiveShare</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 50%, #4facfe 100%);
+      min-height: 100vh;
+      padding: 20px;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+      opacity: 0.3;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .header {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 25px 30px;
+      margin-bottom: 20px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #f5576c 0%, #4facfe 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 20px;
+      background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+      color: white;
+      border-radius: 25px;
+      font-weight: 600;
+      box-shadow: 0 4px 15px rgba(72, 187, 120, 0.4);
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      background: white;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.5;
+      }
+    }
+
+    .map-container {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    #map {
+      height: 600px;
+      width: 100%;
+      border-radius: 18px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+      border: 2px solid rgba(255, 255, 255, 0.5);
+      z-index: 1;
+      position: relative;
+    }
+
+    .map-container {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+    }
+
+    .request-box h3 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #2d3748;
+      margin-bottom: 15px;
+    }
+
+    #requestText {
+      font-size: 18px;
+      font-weight: 600;
+      color: #718096;
+      margin-bottom: 20px;
+    }
+
+    .request-buttons {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 15px 30px;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 700;
+      font-family: 'Poppins', sans-serif;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .btn-accept {
+      background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+      color: white;
+    }
+
+    .btn-reject {
+      background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+      color: white;
+    }
+
+    .btn-arrived {
+      background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+      color: white;
+      width: 100%;
+      margin-top: 15px;
+    }
+
+    .users-list {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 25px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .users-list h3 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #2d3748;
+      margin-bottom: 20px;
+    }
+
+    .user-item {
+      background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+      padding: 15px 20px;
+      border-radius: 12px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 2px solid transparent;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .user-item:hover {
+      border-color: #4299e1;
+      transform: translateX(5px);
+    }
+
+    .user-item.active {
+      border-color: #48bb78;
+      background: linear-gradient(135deg, #f0fff4 0%, #c6f6d5 100%);
+    }
+
+    .user-name {
+      font-weight: 600;
+      color: #2d3748;
+      font-size: 16px;
+    }
+
+    .user-status {
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      background: #c6f6d5;
+      color: #22543d;
+    }
+
+    #status {
+      margin-top: 20px;
+      padding: 15px 20px;
+      border-radius: 12px;
+      font-weight: 600;
+      display: none;
+    }
+
+    #status.active {
+      display: block;
+    }
+
+    .back-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: rgba(255, 255, 255, 0.95);
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      font-size: 24px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+
+    .back-btn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    @media (max-width: 768px) {
+      .header {
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .request-buttons {
+        flex-direction: column;
+      }
+
+      button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- ═══ DRIVER AUTH GATE ═══ -->
+  <div id="authGate" style="
+  position:fixed; inset:0; background:#0f172a;
+  display:flex; flex-direction:column; align-items:center;
+  justify-content:center; z-index:9999; gap:16px;
+">
+    <h2 style="color:#f8fafc; font-size:1.5rem; margin:0;">🚑 Driver Login</h2>
+    <select id="vehicleTypeSelect" style="
+      padding:12px 20px; font-size:1.1rem; border-radius:8px;
+      border:2px solid #334155; background:#1e293b;
+      color:#f8fafc; text-align:center; width:200px;
+      outline:none; margin-bottom: 5px;
+    ">
+      <option value="ambulance">🚑 Ambulance</option>
+      <option value="police">🚓 Police Vehicle</option>
+      <option value="fire">🚒 Fire Brigade</option>
+      <option value="national">🚨 National Emergency</option>
+    </select>
+    <p style="color:#94a3b8; margin:0; font-size:.9rem;">Enter your dispatch PIN to continue</p>
+    <input id="pinInput" type="password" maxlength="8" placeholder="Enter PIN" style="
+      padding:12px 20px; font-size:1.2rem; border-radius:8px;
+      border:2px solid #334155; background:#1e293b;
+      color:#f8fafc; text-align:center; width:200px;
+      outline:none; letter-spacing:4px;
+    " />
+    <button onclick="submitPin()" style="
+    padding:12px 32px; background:#ef4444; color:#fff;
+    border:none; border-radius:8px; font-size:1rem;
+    cursor:pointer; font-weight:600;
+  ">Unlock Dashboard</button>
+    <p id="pinError" style="color:#ef4444; margin:0; font-size:.85rem; display:none;">
+      ❌ Incorrect PIN. Try again.
+    </p>
+  </div>
+
+  <script>
+    // If running via Live Server (e.g. port 5501), force API to point to the Node backend
+    const API_BASE = (window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost") && window.location.port !== "5500" ? "http://localhost:5500" : (window.location.protocol === "file:" ? "http://localhost:5500" : "");
+
+    // Check for existing valid token on page load
+    (async function checkAuth() {
+      const token = sessionStorage.getItem("driverToken");
+      if (!token) return; // stay on gate
+      try {
+        const res = await fetch(API_BASE + "/api/verify-driver", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token }),
+        });
+        const data = await res.json();
+        if (data.valid) {
+          document.getElementById("authGate").style.display = "none";
+        }
+      } catch { /* stay on gate */ }
+    })();
+
+    async function submitPin() {
+      const pin = document.getElementById("pinInput").value;
+      try {
+        const res = await fetch(API_BASE + "/api/driver-login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ pin }),
+        });
+        
+        if (res.status === 404 || res.status === 405) {
+          document.getElementById("pinError").innerHTML = "❌ API Error: Please close VS Code Live Server and run 'node server.js'";
+          document.getElementById("pinError").style.display = "block";
+          return;
+        }
+
+        const data = await res.json();
+        if (data.token) {
+          sessionStorage.setItem("driverVehicleType", document.getElementById("vehicleTypeSelect").value);
+          sessionStorage.setItem("driverToken", data.token);
+          document.getElementById("authGate").style.display = "none";
+          updateDashboardUI();
+        } else {
+          document.getElementById("pinError").innerHTML = "❌ Incorrect PIN. Try again.";
+          document.getElementById("pinError").style.display = "block";
+        }
+      } catch (err) {
+        console.error("Login failed:", err);
+
+        document.getElementById("pinError").innerHTML = "❌ Cannot connect. Close Live Server and make sure node server.js is running.";
+        document.getElementById("pinError").style.display = "block";
+      }
+    }
+
+    // Allow Enter key to submit
+    document.getElementById("pinInput")
+      .addEventListener("keydown", (e) => { if (e.key === "Enter") submitPin(); });
+  </script>
+  <a href="index.html" class="back-btn">←</a>
+
+  <div class="container">
+    <div class="header">
+      <h1 id="driverPanelTitle">🚑 Driver Panel</h1>
+      <div class="status-indicator">
+        <span class="status-dot"></span>
+        <span id="connectionStatus">Connected</span>
+      </div>
+    </div>
+
+    <div class="map-container">
+      <div id="map"></div>
+    </div>
+
+    <!-- Request modal (visible when a share/emergency arrives) -->
+    <div id="requestModalBackdrop"
+      style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background-color:rgba(0,0,0,0.6); z-index:1999; backdrop-filter:blur(4px);">
+    </div>
+    <div id="requestModal"
+      style="display:none; position:fixed; left:50%; top:50%; transform:translate(-50%,-50%) scale(0.95); margin:0; max-width:520px; z-index:2000; width:90%; max-width:500px; animation:slideIn 0.3s ease-out forwards;">
+      <div id="modalContent"
+        style="background:linear-gradient(135deg,#fff,#f8fafc); padding:35px; border-radius:18px; box-shadow:0 25px 70px rgba(0,0,0,0.4); text-align:center; border:2px solid rgba(72,187,120,0.3);">
+        <div id="modalText" style="font-size:24px; font-weight:800; margin-bottom:18px; color:#2d3748;">Request</div>
+        <div id="modalCoords"
+          style="color:#4a5568; margin-bottom:30px; font-size:15px; line-height:1.6; white-space:pre-line;"></div>
+        <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+          <button id="modalAccept" class="btn-accept"
+            style="flex:1; min-width:130px; font-size:16px; padding:16px 20px;">✅ Accept</button>
+          <button id="modalReject" class="btn-reject"
+            style="flex:1; min-width:130px; font-size:16px; padding:16px 20px;">❌ Reject</button>
+        </div>
+      </div>
+    </div>
+
+    <style>
+      @keyframes slideIn {
+        from {
+          transform: translate(-50%, -50%) scale(0.8);
+          opacity: 0;
+        }
+
+        to {
+          transform: translate(-50%, -50%) scale(1);
+          opacity: 1;
+        }
+      }
+
+      /* Animated route line */
+      .animated-route {
+        stroke-dasharray: 10, 10;
+        animation: dash 1s linear infinite;
+      }
+
+      @keyframes dash {
+        to {
+          stroke-dashoffset: -20;
+        }
+      }
+
+      /* Pulsing marker effect */
+      .pulsing-marker {
+        animation: markerPulse 2s ease-in-out infinite;
+      }
+
+      @keyframes markerPulse {
+
+        0%,
+        100% {
+          transform: scale(1);
+          filter: drop-shadow(0 0 0 rgba(255, 107, 107, 0.7));
+        }
+
+        50% {
+          transform: scale(1.2);
+          filter: drop-shadow(0 0 10px rgba(255, 107, 107, 0.9));
+        }
+      }
+
+      /* Ambulance marker styling */
+      .ambulance-marker {
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      }
+
+      /* Emergency marker pulsing */
+      .emergency-pulsing {
+        animation: emergencyPulse 1.5s ease-in-out infinite;
+      }
+
+      @keyframes emergencyPulse {
+
+        0%,
+        100% {
+          transform: scale(1);
+          filter: drop-shadow(0 0 0 rgba(245, 101, 101, 0.7));
+        }
+
+        50% {
+          transform: scale(1.15);
+          filter: drop-shadow(0 0 15px rgba(245, 101, 101, 1));
+        }
+      }
+    </style>
+
+    <div class="request-box">
+      <h3 id="requestBoxTitle">🚑 Ambulance Control Panel</h3>
+      <p id="requestText">Waiting for emergency requests...</p>
+      <div id="requestButtons" style="display: none;">
+        <button class="btn-accept" onclick="acceptRequest()">✅ Accept</button>
+        <button class="btn-reject" onclick="rejectRequest()">❌ Reject</button>
+      </div>
+      <div style="margin: 15px 0;">
+        <button id="showLocBtn" onclick="showFallbackLocation()"
+          style="background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%); color: white; border: none; padding: 12px 20px; border-radius: 10px; font-weight: 600; cursor: pointer; width: 100%;">🚑
+          Show Ambulance Location</button>
+      </div>
+      <div id="usersList" class="users-list" style="display: none;">
+        <h3>👥 Sharing Locations</h3>
+        <div id="usersContainer"></div>
+      </div>
+      <div id="status"></div>
+      <button id="arrivedBtn" class="btn-arrived" style="display:none;">📍 Mark Arrived</button>
+
+      <!-- 🚨 Active Rescue Toolkit (Shows when accepted) -->
+      <div id="rescueToolkit" style="display: none; margin-top: 20px; background: rgba(235,248,255,0.8); border-radius: 15px; padding: 20px; border: 2px solid #90cdf4; text-align: left;">
+        <h3 style="font-size: 18px; margin-bottom: 15px; color: #2b6cb0;">🚑 Tele-Med & Chat</h3>
+        
+        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+          <div id="patientVitalsBox" style="display:none; flex: 1; padding: 10px; background: #fc8181; color: white; border-radius: 8px; font-weight: bold; text-align:center;">⌚ Vitals: <span id="patientVitals">--</span></div>
+        </div>
+
+        <!-- Auto-Translated Chat -->
+        <div style="background: white; padding: 10px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+          <div style="font-size: 12px; color: #718096; margin-bottom: 5px; font-weight: bold;">🗣️ Auto-Translated Chat</div>
+          <div id="p2pChatHistory" style="height: 120px; overflow-y: auto; margin-bottom: 10px; font-size: 14px; color: #2d3748; display: flex; flex-direction: column; gap: 8px;"></div>
+          <div style="display: flex; gap: 10px;">
+            <input type="text" id="p2pChatInput" placeholder="Type message..." style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e0;">
+            <button onclick="sendP2PChat()" style="padding: 10px 15px; background: #48bb78; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">Send</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <script>
+    console.log('[DRIVER] 🚀 Script starting...');
+    // Initialize map
+    let map;
+    let markers = {}; // Store all markers on the map
+    let ws; // WebSocket connection
+    let watchId = null; // GPS watch ID
+    let currentEmergency = null; // Current emergency request data
+    let currentRequest = null; // Current share request data
+    let activeSessionData = null; // Holds the currently accepted request
+
+    const vehicleMap = {
+      ambulance: { name: 'Ambulance', icon: '🚑', color: '#ff6b6b' },
+      police: { name: 'Police', icon: '🚓', color: '#3182ce' },
+      fire: { name: 'Fire Brigade', icon: '🚒', color: '#dd6b20' },
+      national: { name: 'National Emergency', icon: '🚨', color: '#805ad5' }
+    };
+
+    function updateDashboardUI() {
+      const vType = sessionStorage.getItem("driverVehicleType") || 'ambulance';
+      const vData = vehicleMap[vType];
+      if (vData) {
+        const title = document.getElementById('driverPanelTitle');
+        if(title) title.innerHTML = `${vData.icon} ${vData.name} Panel`;
+        const boxTitle = document.getElementById('requestBoxTitle');
+        if(boxTitle) boxTitle.innerHTML = `${vData.icon} ${vData.name} Control Panel`;
+        const locBtn = document.getElementById('showLocBtn');
+        if(locBtn) locBtn.innerHTML = `${vData.icon} Show ${vData.name} Location`;
+      }
+    }
+
+    function initMapOnLoad() {
+      const mapContainer = document.getElementById('map');
+      if (!mapContainer) {
+        console.warn('[DRIVER] Map container not found, retrying...');
+        setTimeout(initMapOnLoad, 200);
+        return;
+      }
+
+      try {
+        map = L.map('map').setView([20.2961, 85.8245], 13);
+        console.log('[DRIVER] Map initialized');
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '© OpenStreetMap contributors',
+          maxZoom: 19
+        }).addTo(map);
+
+        // Force redraw
+        setTimeout(() => {
+          try {
+            map.invalidateSize(true);
+            console.log('[DRIVER] Map size invalidated');
+
+            // Show ambulance marker immediately
+            console.log('[DRIVER] Showing initial ambulance marker');
+            showFallbackLocation();
+          } catch (e) {
+            console.warn('[DRIVER] invalidateSize error', e);
+          }
+        }, 300);
+      } catch (e) {
+        console.error('[DRIVER] Map init error:', e);
+      }
+    }
+
+    // Initialize map when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initMapOnLoad);
+    } else {
+      initMapOnLoad();
+    }
+
+    // Redraw on visibility change
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden && map) {
+        setTimeout(() => { try { map.invalidateSize(true); } catch (e) { } }, 200);
+      }
+    });
+
+    // Ambulance SVG icon for drivers
+    function createVehicleIcon(label) {
+      const vType = sessionStorage.getItem("driverVehicleType") || 'ambulance';
+      const vData = vehicleMap[vType] || vehicleMap['ambulance'];
+
+      return L.divIcon({
+        className: 'custom-marker',
+        html: `<div style="font-size: 24px; background: white; border-radius: 50%; width: 45px; height: 45px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.3); border: 2px solid ${vData.color};">
+                 <div style="line-height: 1;">${vData.icon}</div>
+                 <div style="font-size: 9px; font-weight: bold; color: #333; margin-top: -2px;">${label || ''}</div>
+               </div>`,
+        iconSize: [40, 40],
+        iconAnchor: [20, 20]
+      });
+    }
+
+    // Smoothly animate marker to new position
+    function animateMarkerTo(marker, latlng, duration = 2000) {
+      if (!marker) return;
+
+      const from = marker.getLatLng();
+      const to = L.latLng(latlng[0], latlng[1]);
+      const steps = 20;
+      let i = 0;
+
+      const animate = () => {
+        if (i >= steps) {
+          marker.setLatLng(to);
+          return;
+        }
+
+        const lat = from.lat + (to.lat - from.lat) * (i / steps);
+        const lng = from.lng + (to.lng - from.lng) * (i / steps);
+        marker.setLatLng([lat, lng]);
+
+        i++;
+        setTimeout(animate, duration / steps);
+      };
+
+      animate();
+    }
+    // Generate a stable-ish driver id for this session
+    const driverId = 'Driver_' + Math.random().toString(36).substr(2, 8);
+    console.log('[DRIVER] Generated driverId:', driverId);
+
+    // Get WebSocket URL dynamically
+    function getWebSocketURL() {
+      if (window.location.protocol === "file:") return "ws://localhost:5500";
+      const WS_PROTOCOL = window.location.protocol === "https:" ? "wss:" : "ws:";
+      const WS_PORT = window.location.port ? `:${window.location.port}` : "";
+      return `${WS_PROTOCOL}//${window.location.hostname}${WS_PORT}`;
+    }
+
+    // Initialize WebSocket
+    function initWebSocket() {
+      console.log('[DRIVER] 🚀 initWebSocket called');
+      updateDashboardUI();
+      const wsUrl = getWebSocketURL();
+      console.log(`[DRIVER] Connecting to WebSocket: ${wsUrl}`);
+
+      ws = new WebSocket(wsUrl);
+      console.log('[DRIVER] WebSocket object created:', ws);
+
+      ws.onopen = function () {
+        console.log('[DRIVER] ✅ WebSocket connected successfully');
+        // Register as driver
+        const driverToken = sessionStorage.getItem("driverToken");
+        const registerMsg = JSON.stringify({ type: 'driver', driverId: driverId, token: driverToken });
+        console.log('[DRIVER] Sending registration:', registerMsg);
+        ws.send(registerMsg);
+        updateStatus('Connected to server', 'success');
+        document.getElementById('connectionStatus').textContent = 'Connected';
+
+        // Start GPS tracking immediately to show ambulance location
+        startTracking();
+
+        // Also show a demo marker immediately if GPS takes time
+        setTimeout(() => {
+          if (!markers[driverId]) {
+            console.log('[DRIVER] GPS slow, showing demo marker');
+            showFallbackLocation();
+          }
+        }, 2000);
+      };
+
+      ws.onmessage = function (event) {
+        try {
+          const data = JSON.parse(event.data);
+          console.log(`[DRIVER] Received: ${data.type}`);
+
+          if (data.type === 'allUsers') {
+            console.log(`[DRIVER] Received ${data.users.length} active user(s)`);
+            data.users.forEach(user => {
+              handleLocationUpdate(user.id, user.lat, user.lng);
+            });
+          } else if (data.type === 'location') {
+            handleLocationUpdate(data.id, data.lat, data.lng);
+          } else if (data.type === 'disconnect') {
+            removeUser(data.id);
+          } else if (data.type === 'emergency' || data.type === 'ambulanceRequest') {
+            handleEmergencyRequest(data);
+          } else if (data.type === 'shareRequest') {
+            handleShareRequest(data);
+          } else if (data.type === 'hazardReported') {
+            handleHazardReported(data);
+          }
+          
+          // Advanced Feature Handlers
+          else if (data.type === 'vitalsUpdate') {
+            document.getElementById('patientVitals').textContent = `❤️ ${data.hr} bpm`;
+            document.getElementById('patientVitalsBox').style.display = 'block';
+          } else if (data.type === 'p2pChat' && data.sender !== 'driver') {
+            handleIncomingChat(data);
+          }
+        } catch (err) {
+          console.error('[DRIVER] Error parsing message:', err);
+        }
+      };
+
+      ws.onerror = function (error) {
+        console.error('[DRIVER] WebSocket error:', error);
+        updateStatus('Connection error', 'error');
+        document.getElementById('connectionStatus').textContent = 'Disconnected';
+      };
+
+      ws.onclose = function () {
+        console.log('[DRIVER] WebSocket closed. Reconnecting...');
+        updateStatus('Disconnected. Reconnecting...', 'warning');
+        document.getElementById('connectionStatus').textContent = 'Disconnected';
+        setTimeout(initWebSocket, 3000);
+      };
+    }
+
+    // Handle location update from share page
+    function handleLocationUpdate(userId, lat, lng) {
+      console.log(`[DRIVER] 📍 Location update from ${userId}: ${lat}, ${lng}`);
+
+      // Show users list
+      document.getElementById('usersList').style.display = 'block';
+
+      // Update or create marker
+      if (!markers[userId]) {
+        markers[userId] = L.marker([lat, lng], {
+          icon: L.icon({
+            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41]
+          })
+        }).addTo(map)
+          .bindPopup(`<b>${userId}</b><br>📍 Sharing location`)
+          .openPopup();
+
+        // Add to users list
+        addUserToList(userId);
+      } else {
+        markers[userId].setLatLng([lat, lng]);
+      }
+
+      // Center map on first user
+      if (Object.keys(markers).length === 1) {
+        map.setView([lat, lng], 14);
+      } else {
+        // Fit all markers
+        const group = new L.featureGroup(Object.values(markers));
+        map.fitBounds(group.getBounds().pad(0.1));
+      }
+    }
+
+    // Add user to list
+    function addUserToList(userId) {
+      const container = document.getElementById('usersContainer');
+      let userItem = document.getElementById(`user-${userId}`);
+
+      if (!userItem) {
+        userItem = document.createElement('div');
+        userItem.className = 'user-item';
+        userItem.id = `user-${userId}`;
+        userItem.onclick = () => selectUser(userId);
+        userItem.innerHTML = `
+          <span class="user-name">${userId}</span>
+          <span class="user-status">Sharing</span>
+        `;
+        container.appendChild(userItem);
+      }
+    }
+
+    // Select user
+    function selectUser(userId) {
+      document.querySelectorAll('.user-item').forEach(item => {
+        item.classList.remove('active');
+      });
+
+      const item = document.getElementById(`user-${userId}`);
+      if (item) {
+        item.classList.add('active');
+      }
+
+      if (markers[userId]) {
+        map.setView(markers[userId].getLatLng(), 15);
+      }
+    }
+
+    // Handle emergency request
+    function handleEmergencyRequest(data) {
+      const driverVehicleType = sessionStorage.getItem("driverVehicleType") || 'ambulance';
+      
+      // Determine what was requested. Check profile object as a fallback if server stripped it from root
+      let requestServiceType = data.serviceType || (data.profile && data.profile.serviceType);
+      
+      // Bulletproof fallback: Server stripped everything, but userId is always a string.
+      if (data.userId && typeof data.userId === 'string' && data.userId.includes('|')) {
+        const parts = data.userId.split('|');
+        data.userId = parts[0]; // Restore original userId for the rest of the code
+        if (vehicleMap[parts[1]]) {
+          requestServiceType = parts[1];
+        }
+      }
+
+      // Ultimate fallback: Server might strip all unknown JSON fields, but it passes requestId.
+      if (!requestServiceType && data.requestId && data.requestId.includes('_')) {
+        const parts = data.requestId.split('_');
+        if (parts.length >= 3 && vehicleMap[parts[1]]) {
+          requestServiceType = parts[1];
+        }
+      }
+
+      // If it's a general SOS from the home page, treat it as a critical alert for ALL drivers
+      const isGeneralSOS = data.type === 'emergency' && (!requestServiceType || requestServiceType === 'national');
+      requestServiceType = requestServiceType || (isGeneralSOS ? 'national' : 'ambulance');
+
+      if (!isGeneralSOS && requestServiceType !== driverVehicleType) {
+        console.log(`[DRIVER] Ignored ${requestServiceType} request (I am a ${driverVehicleType})`);
+        return;
+      }
+
+      currentEmergency = data;
+      console.log('[DRIVER] Emergency request received:', data);
+      
+      const vData = vehicleMap[requestServiceType] || vehicleMap['ambulance'];
+      const alertName = isGeneralSOS ? "SOS EMERGENCY" : `${vData.name}`;
+      document.getElementById('requestText').innerHTML = `🚨 <strong>${alertName} Required!</strong>`;
+
+      document.getElementById('requestText').style.color = '#f56565';
+      document.getElementById('requestText').style.fontSize = '20px';
+      document.getElementById('requestText').style.fontWeight = '800';
+      document.getElementById('requestButtons').style.display = 'block';
+
+      if (markers['emergency']) {
+        map.removeLayer(markers['emergency']);
+      }
+
+      // Create emergency marker with enhanced styling
+      markers['emergency'] = L.marker([data.lat, data.lng], {
+        icon: L.divIcon({
+          className: 'custom-marker emergency-pulsing',
+          html: `<div style="font-size: 28px; background: white; border-radius: 50%; width: 45px; height: 45px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(245,101,101,0.6); border: 3px solid #f56565;">
+                   <div style="line-height: 1;">${isGeneralSOS ? '🚨' : vData.icon}</div>
+                 </div>`,
+          iconSize: [45, 45],
+          iconAnchor: [22, 22]
+        })
+      }).addTo(map)
+        .bindPopup(`<div style="font-weight:bold; color:#f56565; text-align:center;">🚨 EMERGENCY<br>${isGeneralSOS ? '🚨 SOS' : vData.icon + ' ' + vData.name} Required<br><small>Patient needs immediate help!</small></div>`)
+        .openPopup();
+
+      map.setView([data.lat, data.lng], 14);
+      updateStatus(`🚨 EMERGENCY - ${alertName} Request Received!`, 'emergency');
+
+      // Show prominent modal
+      document.getElementById('modalText').innerHTML = `${isGeneralSOS ? '🚨 SOS' : vData.icon} ${alertName.toUpperCase()} REQUEST!`;
+      document.getElementById('modalText').style.color = '#f56565';
+      document.getElementById('modalText').style.fontSize = '24px';
+      
+      let emergencyMsg = '⚠️ PATIENT NEEDS IMMEDIATE HELP';
+      if (requestServiceType === 'police') emergencyMsg = '⚠️ POLICE ASSISTANCE REQUIRED';
+      if (requestServiceType === 'fire') emergencyMsg = '⚠️ FIRE EMERGENCY - IMMEDIATE RESPONSE REQUIRED';
+      if (requestServiceType === 'national' || isGeneralSOS) emergencyMsg = '⚠️ SOS EMERGENCY - IMMEDIATE DISPATCH';
+      
+      document.getElementById('modalCoords').innerHTML = `<strong>📍 Location:</strong> Lat ${data.lat.toFixed(6)}, Lon ${data.lng.toFixed(6)}<br><span style="color:#e53e3e; font-size:18px; display:inline-block; margin-top:10px;">${emergencyMsg}</span>`;
+      document.getElementById('modalAccept').innerHTML = `✅ ACCEPT & DISPATCH ${isGeneralSOS ? '🚨' : vData.icon}`;
+      document.getElementById('modalAccept').style.backgroundColor = '#c53030';
+      document.getElementById('modalAccept').onclick = () => { acceptRequest(); hideRequestModal(); };
+      document.getElementById('modalReject').onclick = () => { rejectRequest(); hideRequestModal(); };
+
+      console.log('[DRIVER] Showing emergency modal...');
+      showRequestModal();
+    }
+
+    // Handle share request
+    function handleShareRequest(data) {
+      currentRequest = data;
+      console.log('[DRIVER] Share request received:', data);
+
+      document.getElementById('requestText').textContent = `📍 Location Share Request from ${data.userId}`;
+      document.getElementById('requestText').style.color = '#4299e1';
+      document.getElementById('requestButtons').style.display = 'block';
+
+      // Show modal
+      document.getElementById('modalText').textContent = `📍 Location share request from ${data.userId}`;
+      document.getElementById('modalCoords').textContent = `Lat: ${data.lat.toFixed(6)}, Lon: ${data.lng.toFixed(6)}`;
+      document.getElementById('modalAccept').onclick = () => { acceptRequest(); hideRequestModal(); };
+      document.getElementById('modalReject').onclick = () => { rejectRequest(); hideRequestModal(); };
+
+      console.log('[DRIVER] Showing request modal...');
+      showRequestModal();
+
+      if (markers[data.userId]) {
+        map.removeLayer(markers[data.userId]);
+      }
+
+      markers[data.userId] = L.marker([data.lat, data.lng], {
+        icon: L.icon({
+          iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png',
+          iconSize: [25, 41],
+          iconAnchor: [12, 41]
+        })
+      }).addTo(map)
+        .bindPopup(`📍 ${data.userId} wants to share location`)
+        .openPopup();
+
+      map.setView([data.lat, data.lng], 14);
+      updateStatus('Location share request received', 'info');
+    }
+
+    // Handle hazard reported
+    function handleHazardReported(data) {
+      console.log('[DRIVER] 🚧 Hazard received:', data);
+      
+      if (data.lat && data.lng) {
+        L.marker([data.lat, data.lng], {
+          icon: L.divIcon({ 
+            html: '<div style="font-size: 24px; background: white; border-radius: 50%; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 8px rgba(0,0,0,0.3);">⚠️</div>', 
+            className: 'custom-marker', 
+            iconSize: [34, 34] 
+          })
+        }).addTo(map).bindPopup(`<b>🚧 Road Hazard:</b><br>${data.description}`);
+        
+        updateStatus(`⚠️ Road Hazard: ${data.description}`, 'warning');
+      }
+    }
+
+    // Accept request
+    function acceptRequest() {
+      if (!currentEmergency && !currentRequest) return;
+
+      const requestData = currentEmergency || currentRequest;
+      activeSessionData = requestData; // Persist the request data for the active session
+
+      const requestType = currentEmergency ? 'emergency' : 'share';
+
+      // Send acceptance to server
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({
+          type: 'acceptAmbulanceRequest', // Correct type for the server to handle sessions
+          requestId: requestData.requestId,
+          userId: requestData.userId, // Inform the server which user to notify
+          driverId: driverId,
+          // Send driver's current location on accept
+          lat: markers[driverId] ? markers[driverId].getLatLng().lat : null,
+          lng: markers[driverId] ? markers[driverId].getLatLng().lng : null
+        }));
+      }
+
+      const vData = vehicleMap[sessionStorage.getItem("driverVehicleType") || 'ambulance'];
+      document.getElementById('requestText').textContent = `✅ ${requestType === 'emergency' ? 'Emergency' : 'Share'} Request Accepted - ${vData.name} en route!`;
+      document.getElementById('requestText').style.color = '#48bb78';
+      document.getElementById('requestButtons').style.display = 'none';
+      
+      // Show the toolkit for video/chat and the arrival button
+      document.getElementById('arrivedBtn').style.display = 'block';
+      document.getElementById('rescueToolkit').style.display = 'block';
+
+      updateStatus(`Request accepted. ${vData.name} heading to destination...`, 'success');
+      startTracking();
+
+      // Start animated journey to destination
+      if (requestData.lat && requestData.lng) {
+        startAnimatedJourney(requestData.lat, requestData.lng);
+      }
+
+      currentEmergency = null;
+      currentRequest = null;
+    }
+
+    // Reject request
+    function rejectRequest() {
+      if (!currentEmergency && !currentRequest) return;
+
+      const requestData = currentEmergency || currentRequest;
+
+      // Send rejection to server
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({
+          type: 'rejectRequest',
+          requestId: requestData.requestId || 'emergency_' + Date.now()
+        }));
+      }
+
+      document.getElementById('requestText').textContent = '❌ Request Rejected';
+      document.getElementById('requestText').style.color = '#f56565';
+      document.getElementById('requestButtons').style.display = 'none';
+
+      // Remove marker
+      const markerKey = currentEmergency ? 'emergency' : requestData.userId;
+      if (markers[markerKey]) {
+        map.removeLayer(markers[markerKey]);
+        delete markers[markerKey];
+      }
+
+      currentEmergency = null;
+      currentRequest = null;
+      updateStatus('Request rejected', 'warning');
+    }
+
+    function hideRequestModal() {
+      const modal = document.getElementById('requestModal');
+      const backdrop = document.getElementById('requestModalBackdrop');
+      if (modal) modal.style.display = 'none';
+      if (backdrop) backdrop.style.display = 'none';
+    }
+
+    function showRequestModal() {
+      const modal = document.getElementById('requestModal');
+      const backdrop = document.getElementById('requestModalBackdrop');
+      if (modal) modal.style.display = 'block';
+      if (backdrop) backdrop.style.display = 'block';
+    }
+
+    // Start animated journey to destination
+    function startAnimatedJourney(destLat, destLng) {
+      // Get current driver position
+      if (!markers[driverId]) {
+        console.log('[DRIVER] No driver marker found for animation');
+        return;
+      }
+
+      const startLatLng = markers[driverId].getLatLng();
+      const endLatLng = L.latLng(destLat, destLng);
+
+      // Calculate distance for animation duration (longer distance = longer animation)
+      const distance = map.distance(startLatLng, endLatLng);
+      const duration = Math.max(3000, Math.min(8000, distance / 10)); // 3-8 seconds based on distance
+
+      console.log(`[DRIVER] Starting journey animation: ${distance.toFixed(0)}m, duration: ${duration}ms`);
+
+      // Create animated route line
+      const routeLine = L.polyline([startLatLng, endLatLng], {
+        color: '#ff6b6b',
+        weight: 4,
+        opacity: 0.8,
+        dashArray: '10, 10',
+        className: 'animated-route'
+      }).addTo(map);
+
+      // Animate the ambulance along the route
+      animateMarkerTo(markers[driverId], [destLat, destLng], duration);
+
+      // Add pulsing effect to destination marker
+      if (markers['emergency']) {
+        const vData = vehicleMap[sessionStorage.getItem("driverVehicleType") || 'ambulance'];
+        const emergencyMarker = markers['emergency'];
+        emergencyMarker.setIcon(L.divIcon({
+          className: 'custom-marker pulsing-marker',
+          html: `<div style="font-size: 28px; background: white; border-radius: 50%; width: 45px; height: 45px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(245,101,101,0.6); border: 3px solid #f56565;">
+                   <div style="line-height: 1;">${vData.icon}</div>
+                 </div>`,
+          iconSize: [45, 45],
+          iconAnchor: [22, 22]
+        }));
+      }
+
+      const vData = vehicleMap[sessionStorage.getItem("driverVehicleType") || 'ambulance'];
+      // Update status during journey
+      updateStatus(`${vData.icon} ${vData.name} en route to emergency location...`, 'success');
+
+      // Clean up route line after animation
+      setTimeout(() => {
+        if (routeLine && map.hasLayer(routeLine)) {
+          map.removeLayer(routeLine);
+        }
+        updateStatus(`${vData.icon} ${vData.name} arrived at destination!`, 'success');
+      }, duration + 500);
+    }
+
+    // Start GPS tracking
+    function startTracking() {
+      console.log('[DRIVER] Starting GPS tracking...');
+
+      if (!navigator.geolocation) {
+        console.warn('[DRIVER] Geolocation not supported, using fallback location');
+        showFallbackLocation();
+        return;
+      }
+
+      if (watchId !== null) {
+        navigator.geolocation.clearWatch(watchId);
+      }
+
+      // Show loading status
+      updateStatus('Getting your location...', 'info');
+
+      watchId = navigator.geolocation.watchPosition(
+        function (position) {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          console.log(`[DRIVER] GPS position: ${lat}, ${lng}`);
+
+          if (ws && ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({
+              type: 'locationUpdate',
+              driverId: driverId,
+              lat: lat,
+              lng: lng,
+              serviceType: sessionStorage.getItem("driverVehicleType") || 'ambulance'
+            }));
+          }
+          
+          // Use driverId as marker key so trackers can reference this driver
+          const vData = vehicleMap[sessionStorage.getItem("driverVehicleType") || 'ambulance'];
+          if (!markers[driverId]) {
+            console.log(`[DRIVER] 🏥 Creating ${vData.name} marker at:`, lat, lng);
+            console.log('[DRIVER] Map object:', map);
+            if (map) {
+              markers[driverId] = L.marker([lat, lng], {
+                icon: createVehicleIcon('YOU')
+              }).addTo(map)
+                .bindPopup(`<div style="font-weight:bold; color:${vData.color};">${vData.icon} ${vData.name}<br>You are here</div>`);
+              console.log(`[DRIVER] ✅ ${vData.name} marker added to map`);
+              map.setView([lat, lng], 15);
+              updateStatus(`${vData.icon} ${vData.name} location active`, 'success');
+            } else {
+              console.error('[DRIVER] ❌ Map not initialized yet!');
+            }
+          } else {
+            // Animate to new position for smooth movement
+            console.log(`[DRIVER] 📍 Animating ${vData.name} to:`, lat, lng);
+            animateMarkerTo(markers[driverId], [lat, lng], 1000);
+          }
+        },
+        function (error) {
+          console.error('[DRIVER] GPS error:', error);
+          updateStatus('GPS access denied, using demo location', 'warning');
+          showFallbackLocation();
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 30000
+        }
+      );
+    }
+
+    // Fallback location when GPS is not available
+    function showFallbackLocation() {
+      console.log('[DRIVER] Using fallback location');
+      const fallbackLat = 20.2961 + (Math.random() - 0.5) * 0.01; // Add some randomness
+      const fallbackLng = 85.8245 + (Math.random() - 0.5) * 0.01;
+      const vData = vehicleMap[sessionStorage.getItem("driverVehicleType") || 'ambulance'];
+
+      if (!markers[driverId]) {
+        console.log(`[DRIVER] 🏥 Creating fallback ${vData.name} marker at:`, fallbackLat, fallbackLng);
+        console.log('[DRIVER] Map object:', map);
+        if (map) {
+          markers[driverId] = L.marker([fallbackLat, fallbackLng], {
+            icon: createVehicleIcon('YOU')
+          }).addTo(map)
+            .bindPopup(`<div style="font-weight:bold; color:${vData.color};">${vData.icon} ${vData.name}<br>Demo Location<br><small>GPS not available</small></div>`);
+          console.log(`[DRIVER] ✅ Fallback ${vData.name} marker added to map`);
+          map.setView([fallbackLat, fallbackLng], 15);
+          updateStatus(`${vData.icon} Demo ${vData.name} location active`, 'success');
+        } else {
+          console.error('[DRIVER] ❌ Map not initialized for fallback location!');
+        }
+      } else {
+        // Move to new random location
+        const newLat = markers[driverId].getLatLng().lat + (Math.random() - 0.5) * 0.005;
+        const newLng = markers[driverId].getLatLng().lng + (Math.random() - 0.5) * 0.005;
+        console.log(`[DRIVER] 📍 Moving ${vData.name} to:`, newLat, newLng);
+        animateMarkerTo(markers[driverId], [newLat, newLng], 1000);
+        updateStatus(`${vData.icon} ${vData.name} location updated`, 'success');
+      }
+    }
+
+    // Make function globally accessible
+    window.showFallbackLocation = showFallbackLocation;
+
+    // Remove user
+    function removeUser(userId) {
+      if (markers[userId]) {
+        map.removeLayer(markers[userId]);
+        delete markers[userId];
+      }
+
+      const userItem = document.getElementById(`user-${userId}`);
+      if (userItem) {
+        userItem.remove();
+      }
+
+      if (document.getElementById('usersContainer').children.length === 0) {
+        document.getElementById('usersList').style.display = 'none';
+      }
+    }
+
+    // Mark as arrived
+    document.getElementById('arrivedBtn').addEventListener('click', function () {
+      if (watchId !== null) {
+        navigator.geolocation.clearWatch(watchId);
+        watchId = null;
+      }
+
+      updateStatus('✅ Arrived at location!', 'success');
+      alert('Marked as Arrived');
+
+      document.getElementById('requestText').textContent = 'Waiting for emergency requests...';
+      document.getElementById('arrivedBtn').style.display = 'none';
+      document.getElementById('rescueToolkit').style.display = 'none';
+
+      if (markers['emergency']) {
+        map.removeLayer(markers['emergency']);
+        delete markers['emergency'];
+      }
+      
+      if (activeSessionData && activeSessionData.userId && markers[activeSessionData.userId]) {
+         map.removeLayer(markers[activeSessionData.userId]);
+         delete markers[activeSessionData.userId];
+      }
+
+      currentEmergency = null;
+      currentRequest = null;
+      activeSessionData = null;
+    });
+
+    // Update status
+    function updateStatus(message, type) {
+      const statusDiv = document.getElementById('status');
+      statusDiv.textContent = message;
+      statusDiv.className = 'active';
+
+      if (type === 'success') {
+        statusDiv.style.background = '#c6f6d5';
+        statusDiv.style.color = '#22543d';
+      } else if (type === 'error') {
+        statusDiv.style.background = '#fed7d7';
+        statusDiv.style.color = '#742a2a';
+      } else if (type === 'warning') {
+        statusDiv.style.background = '#feebc8';
+        statusDiv.style.color = '#7c2d12';
+      } else if (type === 'emergency') {
+        statusDiv.style.background = 'linear-gradient(135deg, #fc8181, #f56565)';
+        statusDiv.style.color = '#fff';
+        statusDiv.style.fontWeight = '800';
+        statusDiv.style.fontSize = '16px';
+        statusDiv.style.animation = 'pulse 1.5s infinite';
+      } else {
+        statusDiv.style.background = '#bee3f8';
+        statusDiv.style.color = '#2c5282';
+      }
+    }
+
+    /* =========================================
+       🌟 NEW ADVANCED FEATURES INTEGRATION
+       ========================================= */
+
+    // Feature 5: Real-Time Chat & Translation
+    async function sendP2PChat() {
+      const input = document.getElementById('p2pChatInput');
+      const text = input.value.trim();
+      if(!text) return;
+      input.value = '';
+      addP2PMessage("You", text, true);
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type: 'p2pChat', text: text, senderName: "Driver", requestId: activeSessionData ? activeSessionData.requestId : '', sender: 'driver' }));
+      }
+    }
+
+    async function addP2PMessage(sender, text, isSelf) {
+      const box = document.getElementById('p2pChatHistory');
+      const div = document.createElement('div');
+      div.style.padding = '8px';
+      div.style.borderRadius = '8px';
+      div.style.maxWidth = '85%';
+      div.style.alignSelf = isSelf ? 'flex-end' : 'flex-start';
+      div.style.backgroundColor = isSelf ? '#bee3f8' : '#e2e8f0';
+      div.innerHTML = `<strong>${sender}:</strong> <span>${text}</span>`;
+      box.appendChild(div);
+      box.scrollTop = box.scrollHeight;
+      return div.querySelector('span'); // return text container for translation replacement
+    }
+
+    async function translateWithGemini(text, targetLang) {
+      const apiKey = "AIzaSyCHGfeFxXgkepY_xnEXs1UzTTP0tvh2SCc";
+      try {
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({contents: [{parts: [{text: `Translate this to ${targetLang}. ONLY output the translation, no extra text: "${text}"`}]}]})
+        });
+        const data = await res.json();
+        if(data.candidates) return data.candidates[0].content.parts[0].text.trim().replace(/\*/g, ''); 
+      } catch(e) { console.error("Translation Error:", e); }
+      return text;
+    }
+
+    async function handleIncomingChat(data) {
+      const textSpan = await addP2PMessage(data.senderName, "<i>Translating...</i>", false);
+      const translated = await translateWithGemini(data.text, 'English'); // Default driver to English
+      textSpan.innerHTML = `${translated} <br><small style="opacity:0.6; font-size:10px;">(Orig: ${data.text})</small>`;
+    }
+
+    // Initialize on page load
+    window.addEventListener('load', function () {
+      initWebSocket();
+
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          function (position) {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            map.setView([lat, lng], 13);
+          },
+          function (error) {
+            console.log('Could not get initial location:', error);
+          }
+        );
+      }
+    });
+  </script>
+</body>
+
+</html>
