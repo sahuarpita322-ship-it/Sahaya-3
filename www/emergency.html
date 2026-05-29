@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="modern-style.css">
 </head>
-<body data-page="emergency">
+<body data-page="emergency" class="pb-20 md:pb-0">
 
   <!-- Header -->
   <header style="text-align: center; padding: 20px; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
@@ -91,7 +91,23 @@
     </div>
   </main>
 
+  <!-- Mobile Bottom Nav -->
+  <div class="md:hidden fixed bottom-0 w-full glass border-t border-white/20 dark:border-white/10 z-50 px-6 py-3 flex justify-between items-center pb-safe">
+    <a href="index.html" class="flex flex-col items-center gap-1 opacity-60 hover:opacity-100 transition"><i data-lucide="home" class="w-6 h-6"></i><span class="text-[10px] font-bold">Home</span></a>
+    <a href="track.html" class="flex flex-col items-center gap-1 opacity-60 hover:opacity-100 transition"><i data-lucide="map" class="w-6 h-6"></i><span class="text-[10px] font-bold">Track</span></a>
+    <a href="user.html" class="flex flex-col items-center gap-1 -mt-5 relative">
+      <div class="w-12 h-12 rounded-full bg-red-500 flex items-center justify-center text-white shadow-lg shadow-red-500/40 border-4 border-white dark:border-slate-900">
+        <i data-lucide="siren" class="w-6 h-6"></i>
+      </div>
+      <span class="text-[10px] font-bold text-red-500">SOS</span>
+    </a>
+    <a href="driver.html" class="flex flex-col items-center gap-1 opacity-60 hover:opacity-100 transition"><i data-lucide="ambulance" class="w-6 h-6"></i><span class="text-[10px] font-bold">Driver</span></a>
+    <a href="emergency.html" class="flex flex-col items-center gap-1 text-blue-600 dark:text-blue-400"><i data-lucide="phone-call" class="w-6 h-6"></i><span class="text-[10px] font-bold">Dial</span></a>
+  </div>
+
   <script src="script.js"></script>
   <script src="modern-script.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>lucide.createIcons();</script>
 </body>
 </html>

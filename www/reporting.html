@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="modern-style.css">
   <link rel="stylesheet" href="reporting.css">
 </head>
-<body class="relative min-h-screen overflow-x-hidden bg-slate-950 text-slate-100 font-sans">
+<body class="relative min-h-screen overflow-x-hidden bg-slate-950 text-slate-100 font-sans pb-20 md:pb-0">
   
   <!-- Animated Mesh Background -->
   <div class="mesh-bg-dark"></div>
@@ -34,7 +34,7 @@
   </nav>
 
   <!-- Main Content -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12 flex flex-col items-center">
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12 flex flex-col items-center" role="main">
     
     <h1 class="text-3xl md:text-4xl font-extrabold text-center mb-2 bg-clip-text text-transparent bg-gradient-to-r from-red-400 via-orange-400 to-yellow-400 tracking-wider">
       Online Complaint & Crime Reporting
@@ -151,6 +151,20 @@
       </div>
     </div>
   </main>
+
+  <!-- Mobile Bottom Nav -->
+  <div class="md:hidden fixed bottom-0 w-full glass-nav-dark border-t border-red-500/20 backdrop-blur-xl z-50 px-6 py-3 flex justify-between items-center pb-safe">
+    <a href="index.html" class="flex flex-col items-center gap-1 opacity-60 hover:opacity-100 transition"><i data-lucide="home" class="w-6 h-6"></i><span class="text-[10px] font-bold">Home</span></a>
+    <a href="track.html" class="flex flex-col items-center gap-1 opacity-60 hover:opacity-100 transition"><i data-lucide="map" class="w-6 h-6"></i><span class="text-[10px] font-bold">Track</span></a>
+    <a href="user.html" class="flex flex-col items-center gap-1 -mt-5 relative">
+      <div class="w-12 h-12 rounded-full bg-red-500 flex items-center justify-center text-white shadow-lg shadow-red-500/40 border-4 border-slate-900">
+        <i data-lucide="siren" class="w-6 h-6"></i>
+      </div>
+      <span class="text-[10px] font-bold text-red-500">SOS</span>
+    </a>
+    <a href="driver.html" class="flex flex-col items-center gap-1 opacity-60 hover:opacity-100 transition"><i data-lucide="ambulance" class="w-6 h-6"></i><span class="text-[10px] font-bold">Driver</span></a>
+    <a href="emergency.html" class="flex flex-col items-center gap-1 text-red-500"><i data-lucide="phone-call" class="w-6 h-6"></i><span class="text-[10px] font-bold">Dial</span></a>
+  </div>
 
   <script>
     lucide.createIcons();

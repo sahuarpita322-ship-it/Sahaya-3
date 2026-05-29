@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="modern-style.css">
   <link rel="stylesheet" href="consultation.css">
 </head>
-<body class="relative min-h-screen overflow-x-hidden bg-slate-950 text-slate-100 font-sans">
+<body class="relative min-h-screen overflow-x-hidden bg-slate-950 text-slate-100 font-sans pb-20 md:pb-0">
   
   <!-- Animated Mesh Background -->
   <div class="mesh-bg-dark"></div>
@@ -56,7 +56,7 @@
   </nav>
 
   <!-- Main Content -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12 flex flex-col items-center">
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12 flex flex-col items-center" role="main">
     
     <div class="w-full text-center mb-8">
       <h1 class="text-3xl md:text-4xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-400 tracking-wider">
@@ -94,6 +94,19 @@
                 </div>
                 <h3 class="text-2xl font-bold text-white mb-2">Book Appointment</h3>
                 <p class="text-slate-400">Schedule a video consultation for a later date and time.</p>
+              </div>
+
+              <div class="md:col-span-2 bg-gradient-to-br from-slate-900 to-blue-900/40 border border-blue-500/40 p-8 rounded-2xl cursor-pointer hover:border-blue-400 hover:shadow-[0_0_30px_rgba(59,130,246,0.3)] transition-all group relative overflow-hidden" onclick="showScreen('screen-smart-triage')">
+                <div class="absolute right-0 top-0 w-64 h-64 bg-blue-500/10 blur-3xl rounded-full"></div>
+                <div class="flex items-start md:items-center flex-col md:flex-row gap-6 relative z-10">
+                  <div class="w-16 h-16 bg-blue-500/20 rounded-2xl flex shrink-0 items-center justify-center text-blue-400 group-hover:scale-110 transition-transform shadow-[0_0_15px_rgba(59,130,246,0.4)]">
+                    <i data-lucide="brain" class="w-8 h-8"></i>
+                  </div>
+                  <div>
+                    <h3 class="text-2xl font-bold text-white mb-2 flex items-center gap-2">Smart Doctor Suggestion <span class="text-[10px] bg-blue-500 text-white px-2 py-0.5 rounded-full uppercase tracking-wider font-bold animate-pulse">AI Triage</span></h3>
+                    <p class="text-slate-300">Type your symptoms for instant AI triage and get connected to the right specialist via Practo.</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -346,8 +359,117 @@
             </div>
           </div>
 
+          <!-- Screen: Smart Doctor Suggestion (AI Triage) -->
+          <div class="screen" id="screen-smart-triage">
+            <div class="flex items-center justify-between mb-8 border-b border-slate-700 pb-4">
+              <div class="flex items-center gap-4">
+                <button onclick="showScreen('screen-main')" class="p-2 bg-slate-800 hover:bg-slate-700 rounded-full transition"><i data-lucide="arrow-left"></i></button>
+                <div>
+                  <h2 class="text-2xl font-bold text-white">Smart Doctor Suggestion</h2>
+                  <p class="text-slate-400 text-sm">SAHAYA Telemedical Integration</p>
+                </div>
+              </div>
+              <div class="flex gap-3">
+                <i data-lucide="shield-check" class="w-6 h-6 text-green-400" title="Secure Consultation"></i>
+                <i data-lucide="activity" class="w-6 h-6 text-red-400" title="Emergency Fallback"></i>
+              </div>
+            </div>
+
+            <!-- Input Section -->
+            <div class="mb-8">
+              <h3 class="text-lg font-bold text-white mb-4">How are you feeling today?</h3>
+              <div class="relative mb-4">
+                <input type="text" id="symptomInput" placeholder="Type your symptoms (e.g., fever, cough, skin rash)..." class="w-full bg-slate-800/80 border border-blue-500/30 rounded-xl p-4 text-white pl-12 outline-none focus:border-blue-400 transition shadow-[0_0_15px_rgba(59,130,246,0.1)] focus:shadow-[0_0_20px_rgba(59,130,246,0.3)]">
+                <i data-lucide="search" class="w-5 h-5 text-slate-400 absolute left-4 top-4"></i>
+                <button onclick="analyzeSymptoms()" class="absolute right-2 top-2 px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-bold transition shadow-lg shadow-blue-500/30">Analyze</button>
+              </div>
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="text-xs text-slate-400 uppercase tracking-widest mr-2">Quick Select:</span>
+                <button onclick="setSymptom('Fever')" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-full text-xs text-slate-300 transition">Fever</button>
+                <button onclick="setSymptom('Injury')" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-full text-xs text-slate-300 transition">Injury</button>
+                <button onclick="setSymptom('Skin Issue')" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-full text-xs text-slate-300 transition">Skin Issue</button>
+                <button onclick="setSymptom('Women Health')" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-full text-xs text-slate-300 transition">Women Health</button>
+                <button onclick="setSymptom('Chest Pain')" class="px-3 py-1 bg-red-500/20 hover:bg-red-500/30 border border-red-500/50 rounded-full text-xs text-red-400 transition font-bold shadow-[0_0_10px_rgba(239,68,68,0.2)]">Chest Pain</button>
+              </div>
+            </div>
+
+            <!-- Loading State -->
+            <div id="aiLoadingState" class="hidden flex-col items-center justify-center py-12">
+              <div class="w-16 h-16 border-4 border-blue-500/30 border-t-blue-400 rounded-full animate-spin mb-4 shadow-[0_0_15px_rgba(59,130,246,0.5)]"></div>
+              <p class="text-blue-400 font-bold animate-pulse text-lg flex items-center gap-2"><i data-lucide="cpu" class="w-5 h-5"></i> Analyzing symptoms...</p>
+            </div>
+
+            <!-- Results Section -->
+            <div id="aiResultState" class="hidden flex-col gap-6">
+              
+              <!-- AI Suggestion Panel -->
+              <div class="bg-gradient-to-r from-blue-900/40 to-slate-800/80 border border-blue-500/50 p-6 rounded-2xl shadow-[0_0_25px_rgba(59,130,246,0.15)] relative overflow-hidden">
+                <div class="absolute -right-10 -top-10 w-32 h-32 bg-blue-500/20 blur-3xl rounded-full"></div>
+                <div class="flex items-center gap-3 mb-4 border-b border-blue-500/30 pb-3 relative z-10">
+                  <div class="w-10 h-10 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center shadow-[0_0_10px_rgba(59,130,246,0.4)]"><i data-lucide="bot"></i></div>
+                  <div>
+                    <h4 class="font-bold text-white">AI Analysis Complete</h4>
+                    <p class="text-xs text-blue-300">Based on your reported symptoms</p>
+                  </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 relative z-10">
+                  <div>
+                    <p class="text-slate-400 text-sm mb-1">Recommended Specialist</p>
+                    <p class="font-bold text-xl text-blue-300" id="recSpecialist">General Physician</p>
+                  </div>
+                  <div>
+                    <p class="text-slate-400 text-sm mb-1">Severity Indicator</p>
+                    <div class="flex items-center gap-2">
+                      <span class="w-3 h-3 rounded-full" id="sevDot"></span>
+                      <span class="font-bold text-lg" id="sevText">Low</span>
+                      <button id="emergencyFallbackBtn" class="hidden ml-auto px-4 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg text-xs font-bold transition shadow-[0_0_10px_rgba(239,68,68,0.5)] animate-pulse">Call Ambulance</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Doctor Recommendations -->
+              <h3 class="text-lg font-bold text-white mt-4 border-b border-slate-700 pb-2 flex items-center gap-2"><i data-lucide="users" class="w-5 h-5 text-blue-400"></i> Recommended Doctors</h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="doctorCardsContainer">
+                <!-- Cards generated by JS -->
+              </div>
+            </div>
+
+            <!-- Redirect State -->
+            <div id="redirectState" class="hidden fixed inset-0 z-[100] bg-slate-950/95 flex-col items-center justify-center p-4 backdrop-blur-md">
+              <div class="glass-card p-8 max-w-md w-full text-center border border-blue-500/30 bg-slate-900/80 shadow-[0_0_40px_rgba(59,130,246,0.2)] rounded-3xl">
+                <div class="w-24 h-24 bg-blue-500/20 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-[0_0_20px_rgba(59,130,246,0.3)]">
+                  <i data-lucide="link" class="w-12 h-12 animate-pulse"></i>
+                </div>
+                <h2 class="text-2xl font-bold mb-2 text-white">Connecting to Practo...</h2>
+                <p class="text-slate-400 mb-8">Redirecting to trusted platform</p>
+                <div class="w-full bg-slate-800 rounded-full h-2 mb-4 overflow-hidden relative">
+                  <div id="practoProgressBar" class="bg-blue-500 h-2 rounded-full absolute left-0 top-0 transition-all duration-1500 ease-out" style="width: 0%"></div>
+                </div>
+                <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
+                  <p class="text-xs text-blue-400 font-bold tracking-widest break-all">https://www.practo.com/consult</p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
     </div>
   </main>
+
+  <!-- Mobile Bottom Nav -->
+  <div class="md:hidden fixed bottom-0 w-full glass-nav-dark border-t border-cyan-500/20 backdrop-blur-xl z-50 px-6 py-3 flex justify-between items-center pb-safe">
+    <a href="index.html" class="flex flex-col items-center gap-1 opacity-60 hover:opacity-100 transition"><i data-lucide="home" class="w-6 h-6"></i><span class="text-[10px] font-bold">Home</span></a>
+    <a href="track.html" class="flex flex-col items-center gap-1 opacity-60 hover:opacity-100 transition"><i data-lucide="map" class="w-6 h-6"></i><span class="text-[10px] font-bold">Track</span></a>
+    <a href="user.html" class="flex flex-col items-center gap-1 -mt-5 relative">
+      <div class="w-12 h-12 rounded-full bg-red-500 flex items-center justify-center text-white shadow-lg shadow-red-500/40 border-4 border-slate-900">
+        <i data-lucide="siren" class="w-6 h-6"></i>
+      </div>
+      <span class="text-[10px] font-bold text-red-500">SOS</span>
+    </a>
+    <a href="driver.html" class="flex flex-col items-center gap-1 opacity-60 hover:opacity-100 transition"><i data-lucide="ambulance" class="w-6 h-6"></i><span class="text-[10px] font-bold">Driver</span></a>
+    <a href="emergency.html" class="flex flex-col items-center gap-1 opacity-60 hover:opacity-100 transition"><i data-lucide="phone-call" class="w-6 h-6"></i><span class="text-[10px] font-bold">Dial</span></a>
+  </div>
 
   <script>
     lucide.createIcons();
@@ -372,6 +494,9 @@
 
     function getWebSocketURL() {
       if (window.location.protocol === "file:") return "ws://localhost:5500";
+      if ((window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost") && window.location.port !== "5500") {
+        return "ws://localhost:5500";
+      }
       const WS_PROTOCOL = window.location.protocol === "https:" ? "wss:" : "ws:";
       const WS_PORT = window.location.port ? `:${window.location.port}` : "";
       return `${WS_PROTOCOL}//${window.location.hostname}${WS_PORT}`;
@@ -403,6 +528,7 @@
       ws.onmessage = (e) => {
         const data = JSON.parse(e.data);
         if (data.type === 'activeDoctors') {
+          window.currentActiveDoctors = data.doctors; // Store for real-time AI triage
           renderDoctorsList(data.doctors);
         } else if (data.type === 'incomingCall' && userRole === 'doctor') {
           document.getElementById('incomingCallAlert').classList.remove('hidden');
@@ -741,6 +867,189 @@
 
     // Initialize calendar on load
     window.addEventListener('load', renderCalendar);
+
+    // --- Smart Doctor Suggestion (AI Triage) Logic ---
+    function setSymptom(symptom) {
+      document.getElementById('symptomInput').value = symptom;
+      analyzeSymptoms();
+    }
+
+    function analyzeSymptoms() {
+      const input = document.getElementById('symptomInput').value.trim();
+      if (!input) {
+        alert('Please type or select a symptom.');
+        return;
+      }
+      
+      document.getElementById('aiResultState').classList.add('hidden');
+      document.getElementById('aiResultState').classList.remove('flex');
+      document.getElementById('aiLoadingState').classList.remove('hidden');
+      document.getElementById('aiLoadingState').classList.add('flex');
+
+      setTimeout(() => {
+        document.getElementById('aiLoadingState').classList.add('hidden');
+        document.getElementById('aiLoadingState').classList.remove('flex');
+        
+        // Mock AI Logic
+        let specialist = 'General Physician';
+        let severity = 'Low';
+        let sevColor = 'bg-green-500';
+        let isEmergency = false;
+        
+        const lowerInput = input.toLowerCase();
+        if (lowerInput.includes('skin') || lowerInput.includes('rash')) {
+          specialist = 'Dermatologist';
+        } else if (lowerInput.includes('women') || lowerInput.includes('period') || lowerInput.includes('pregnancy')) {
+          specialist = 'Gynecologist';
+        } else if (lowerInput.includes('chest') || lowerInput.includes('heart') || lowerInput.includes('breath') || lowerInput.includes('pain')) {
+          specialist = 'Cardiologist';
+          severity = 'High';
+          sevColor = 'bg-red-500';
+          isEmergency = true;
+        } else if (lowerInput.includes('injury') || lowerInput.includes('bone') || lowerInput.includes('fracture')) {
+          specialist = 'Orthopedic';
+          severity = 'Medium';
+          sevColor = 'bg-yellow-500';
+        } else if (lowerInput.includes('fever') && lowerInput.includes('high')) {
+          severity = 'Medium';
+          sevColor = 'bg-yellow-500';
+        }
+
+        document.getElementById('recSpecialist').textContent = specialist;
+        document.getElementById('sevText').textContent = severity;
+        document.getElementById('sevText').className = `font-bold text-lg ${sevColor.replace('bg-', 'text-')}`;
+        document.getElementById('sevDot').className = `w-3 h-3 rounded-full animate-pulse ${sevColor}`;
+        
+        if (isEmergency) {
+          document.getElementById('emergencyFallbackBtn').classList.remove('hidden');
+          document.getElementById('emergencyFallbackBtn').onclick = () => window.location.href = 'emergency.html';
+        } else {
+          document.getElementById('emergencyFallbackBtn').classList.add('hidden');
+        }
+
+        // Fetch real-time data and then render
+        generateDoctorCards(specialist).then(() => {
+          document.getElementById('aiResultState').classList.remove('hidden');
+          document.getElementById('aiResultState').classList.add('flex');
+          lucide.createIcons();
+        });
+        
+      }, 500); // Reduce simulate network delay because fetch takes time
+    }
+
+    async function generateDoctorCards(specialist) {
+      const container = document.getElementById('doctorCardsContainer');
+      const allDocs = window.currentActiveDoctors || [];
+      
+      // 1. Try to find real-time doctors on local platform
+      let localDocs = allDocs.filter(d => d.spec && d.spec.toLowerCase().includes(specialist.toLowerCase()));
+      
+      // 2. Fetch REAL-TIME Practo Doctors from our backend scraper
+      let practoDocs = [];
+      try {
+        const apiBase = (window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost") ? "http://localhost:5500" : "";
+        const res = await fetch(`${apiBase}/api/practo-doctors?specialty=${encodeURIComponent(specialty)}`);
+        const data = await res.json();
+        if (data.doctors) practoDocs = data.doctors;
+      } catch (e) {
+        console.error("Practo Fetch Error:", e);
+      }
+
+      let combinedDocs = [...localDocs, ...practoDocs].slice(0, 12); // Show top 12 combined
+
+      // 3. Fallback: If no exact match, show any online local real-time doctors
+      let usingFallback = false;
+      if (combinedDocs.length === 0 && allDocs.length > 0) {
+        combinedDocs = allDocs.slice(0, 2);
+        usingFallback = true;
+      }
+      
+      // 4. Complete Fallback: If absolutely NO real-time doctors are online, show external Practo link only
+      if (combinedDocs.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-1 md:col-span-2 p-8 bg-slate-800/80 border border-slate-700 rounded-xl text-center shadow-lg">
+            <div class="w-16 h-16 bg-slate-700/50 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-600"><i data-lucide="user-x" class="text-slate-400 w-8 h-8"></i></div>
+            <h4 class="font-bold text-white text-xl mb-2">No Specific Specialists Online</h4>
+            <p class="text-sm text-slate-400 mb-6 max-w-md mx-auto">We couldn't find any exact matches for ${specialist} right now. Please choose one of our trusted partner platforms below to consult instantly.</p>
+            
+            <p class="text-xs font-bold tracking-widest text-slate-500 uppercase mb-3 border-b border-slate-700 pb-2 max-w-xs mx-auto">Trusted Platforms</p>
+            
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <a href="https://www.practo.com/consult" target="_blank" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg transition shadow-[0_0_15px_rgba(37,99,235,0.3)] text-sm flex items-center gap-2">
+                <i data-lucide="external-link" class="w-4 h-4"></i> Practo
+              </a>
+              <a href="https://www.apollo247.com/specialties" target="_blank" class="px-6 py-2.5 bg-teal-600 hover:bg-teal-500 text-white font-bold rounded-lg transition shadow-[0_0_15px_rgba(13,148,136,0.3)] text-sm flex items-center gap-2">
+                <i data-lucide="external-link" class="w-4 h-4"></i> Apollo 24|7
+              </a>
+              <a href="https://www.1mg.com/online-consultation" target="_blank" class="px-6 py-2.5 bg-red-600 hover:bg-red-500 text-white font-bold rounded-lg transition shadow-[0_0_15px_rgba(220,38,38,0.3)] text-sm flex items-center gap-2">
+                <i data-lucide="external-link" class="w-4 h-4"></i> Tata 1mg
+              </a>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      // Render the real-time online doctors
+      container.innerHTML = combinedDocs.map(doc => {
+        const isExternal = doc.isExternal;
+        const borderClass = isExternal ? 'border-blue-500/50' : (usingFallback ? 'border-slate-700' : 'border-green-500/50');
+        const badge = isExternal ? 
+          `<div class="text-[10px] font-bold text-blue-400 bg-blue-400/10 px-2 py-1 rounded border border-blue-500/20 flex items-center gap-1">PRACTO DOCTOR</div>` :
+          `<div class="text-[10px] font-bold text-green-400 bg-green-400/10 px-2 py-1 rounded border border-green-500/20 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span> LIVE ONLINE</div>`;
+        const initial = doc.name.replace(/Dr\.?\s*/i, '').charAt(0).toUpperCase() || 'D';
+
+        return `
+        <div class="p-5 bg-slate-800/80 border ${borderClass} rounded-xl hover:border-blue-500/50 transition relative group overflow-hidden shadow-lg flex flex-col justify-between">
+          <div class="absolute -right-10 -top-10 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl group-hover:bg-blue-500/20 transition duration-500"></div>
+          
+          <div>
+            <div class="flex items-center justify-between mb-2 relative z-10">
+              ${badge}
+              <span class="text-[10px] text-slate-400">${isExternal ? 'Practo Network' : (usingFallback ? 'General Available' : 'Exact Match')}</span>
+            </div>
+
+            <div class="flex items-center gap-4 mb-4 relative z-10 mt-2">
+              <div class="w-14 h-14 rounded-full bg-slate-700 flex shrink-0 items-center justify-center text-xl font-bold text-slate-300 border border-slate-600">
+                ${initial}
+              </div>
+              <div class="overflow-hidden">
+                <h4 class="font-bold text-white text-lg truncate" title="${doc.name}">${doc.name}</h4>
+                <p class="text-sm text-blue-400 mb-1">${doc.spec}</p>
+                ${isExternal ? (doc.profileUrl ? `<a href="${doc.profileUrl}" target="_blank" class="text-xs text-blue-300 hover:text-white underline flex items-center gap-1 w-max"><i data-lucide="link" class="w-3 h-3"></i> Direct Consult Link</a>` : `<span class="text-xs text-slate-400 flex items-center gap-1">Practo Verified</span>`) : `<span class="text-xs text-green-400 flex items-center gap-1"><i data-lucide="check-circle" class="w-3 h-3"></i> Available on SAHAYA</span>`}
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between mb-5 relative z-10">
+              <div class="flex items-center gap-1 text-yellow-400 text-sm font-bold bg-yellow-400/10 px-2 py-1 rounded">
+                <i data-lucide="star" class="w-4 h-4 fill-current"></i> ${doc.rating || '4.5'}
+              </div>
+              <div class="text-sm font-bold text-white">
+                Fee: <span class="text-cyan-400">${doc.fee || '₹250'}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-2 relative z-10">
+            ${isExternal ? `
+              <a href="${doc.profileUrl || 'https://www.practo.com/consult'}" target="_blank" class="w-full py-2.5 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold rounded-lg transition shadow-[0_0_15px_rgba(59,130,246,0.3)] flex items-center justify-center gap-2 cursor-pointer">
+                <i data-lucide="external-link" class="w-4 h-4"></i> Consult via Practo
+              </a>
+            ` : `
+              <button onclick="startPaymentFlow('${doc.id}')" class="w-full py-2.5 bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg transition shadow-[0_0_15px_rgba(34,197,94,0.3)] flex items-center justify-center gap-2">
+                <i data-lucide="video" class="w-4 h-4"></i> Join Live Call
+              </button>
+              <a href="https://www.practo.com/consult" target="_blank" class="w-full py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 font-semibold rounded-lg transition text-xs flex items-center justify-center gap-2 cursor-pointer">
+                <i data-lucide="external-link" class="w-3 h-3"></i> Find Alternatives on Practo
+              </a>
+            `}
+          </div>
+        </div>
+        `;
+      }).join('');
+    }
+
+    // Removed redirectToPracto as we now use anchor tags
   </script>
 </body>
 </html>

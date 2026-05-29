@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "Sahaya Emergency Tracker",
   "scripts": {
-    "start": "npx cap open android",
+    "start": "node server.js",
+    "android": "npx cap open android",
     "build": "node copy-assets.js",
     "sync": "npm run build && npx cap sync"
   },
@@ -14,7 +15,7 @@
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
-    "ws": "^8.20.0"
+    "ws": "^8.21.0"
   },
   "devDependencies": {
     "@capacitor/cli": "^6.0.0"

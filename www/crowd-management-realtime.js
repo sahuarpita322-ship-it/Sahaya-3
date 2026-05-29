@@ -11,6 +11,7 @@ let voiceEnabled = false;
 let emergencyMode = false;
 let navigating = false;
 let routeAmbulance = null;
+let simulationInterval = null;
 let crowdDensityMap = {};
 let allRoutes = [];
 
@@ -141,120 +142,114 @@ function setupEventListeners() {
   document.getElementById('destinationInput')?.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') searchDestination();
   });
+
+  // Start Simulation
+  document.getElementById('startSimBtn')?.addEventListener('click', startSimulation);
 }
 
 // ========== ROUTE FINDING & OPTIMIZATION ==========
-function findCrowdFreeRoute() {
-  const originInput = document.getElementById('originInput').value;
-  const destinationInput = document.getElementById('destinationInput').value;
+async function findCrowdFreeRoute() {
+  let originInput = document.getElementById('originInput').value;
+  let destinationInput = document.getElementById('destinationInput').value;
 
   if (!originInput || !destinationInput) {
     showNotification('Please enter both origin and destination', 'error');
     return;
   }
 
-  // Show loading status
-  showRouteStatus('Analyzing crowd data and calculating optimal routes...');
+  showRouteStatus('Geocoding locations globally...', false);
 
-  // Simulate route calculation with delay
-  setTimeout(() => {
-    // Parse destination (in real scenario, use geocoding API)
-    const destParts = destinationInput.split(',');
-    if (destParts.length === 2) {
-      destinationLocation = {
-        lat: parseFloat(destParts[0]),
-        lng: parseFloat(destParts[1])
-      };
+  // Strict regex to ensure it only parses actual GPS coordinates (e.g., 19.8135, 84.7939) and not addresses starting with numbers
+  const coordRegex = /^-?\d+(\.\d+)?\s*,\s*-?\d+(\.\d+)?$/;
+
+  // 1. Geocode Origin
+  let originCoords = null;
+  if (coordRegex.test(originInput)) {
+    const parts = originInput.split(',');
+    originCoords = { lat: parseFloat(parts[0]), lng: parseFloat(parts[1]) };
+  } else {
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(originInput)}&format=json&limit=1`);
+      const data = await res.json();
+      if (data && data.length > 0) {
+        originCoords = { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
+        document.getElementById('originInput').value = data[0].display_name;
+      }
+    } catch(e) { console.error(e); }
+  }
+
+  if (!originCoords) {
+    showNotification('Origin not found. Please be more specific.', 'error');
+    showRouteStatus('Routing failed', false);
+    return;
+  }
+  userLocation = originCoords;
+  updateUserMarker();
+
+  // 2. Geocode Destination
+  let destCoords = null;
+  if (coordRegex.test(destinationInput)) {
+    const parts = destinationInput.split(',');
+    destCoords = { lat: parseFloat(parts[0]), lng: parseFloat(parts[1]) };
+  } else {
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(destinationInput)}&format=json&limit=1`);
+      const data = await res.json();
+      if (data && data.length > 0) {
+        destCoords = { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
+        document.getElementById('destinationInput').value = data[0].display_name;
+      }
+    } catch(e) { console.error(e); }
+  }
+
+  if (!destCoords) {
+    showNotification('Destination not found. Please be more specific.', 'error');
+    showRouteStatus('Routing failed', false);
+    return;
+  }
+  destinationLocation = destCoords;
+
+  showRouteStatus('Fetching actual road routes (OSRM)...', false);
+
+  // 3. Fetch OSRM Routes
+  try {
+    const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${originCoords.lng},${originCoords.lat};${destCoords.lng},${destCoords.lat}?overview=full&geometries=geojson&alternatives=true`;
+    const response = await fetch(osrmUrl);
+    const data = await response.json();
+
+    if (data.code === 'Ok' && data.routes && data.routes.length > 0) {
+      allRoutes = data.routes.map((route, index) => {
+        const waypoints = route.geometry.coordinates.map(coord => ({ lat: coord[1], lng: coord[0] }));
+        return {
+          name: index === 0 ? 'Fastest' : `Alternative ${index}`,
+          waypoints: waypoints,
+          distance: route.distance / 1000,
+          duration: route.duration / 60,
+          crowdScore: calculateCrowdScore(waypoints),
+          type: index === 0 ? 'direct' : 'alternative'
+        };
+      });
+
+      selectBestRoute();
+      displayRouteOnMap();
+      updateRouteInfo();
+      showRouteStatus('Route calculated! Optimal path recommended.', true);
+
+      if (voiceEnabled) {
+        giveVoiceGuidance();
+      }
+      
+      const simBtn = document.getElementById('startSimBtn');
+      if (simBtn) simBtn.classList.remove('hidden');
     } else {
-      // Find closest match from crowd zones
-      const closestZone = Object.values(SIMULATED_CROWD_ZONES)[0];
-      destinationLocation = { lat: closestZone.lat, lng: closestZone.lng };
+      showNotification('Could not find a driving route.', 'error');
+      showRouteStatus('Routing failed', false);
     }
-
-    // Generate multiple route options
-    generateMultipleRoutes();
-
-    // Select best crowd-free route
-    selectBestRoute();
-
-    // Display route on map
-    displayRouteOnMap();
-
-    // Update UI
-    updateRouteInfo();
-
-    showRouteStatus('Route calculated! Safe path recommended.', true);
-
-    // Start voice guidance if enabled
-    if (voiceEnabled) {
-      giveVoiceGuidance();
-    }
-  }, 1500);
-}
-
-function generateMultipleRoutes() {
-  // Generate 3 route alternatives
-  allRoutes = [
-    {
-      name: 'Fastest',
-      waypoints: [userLocation, destinationLocation],
-      distance: calculateDistance(userLocation, destinationLocation),
-      crowdScore: calculateCrowdScore([userLocation, destinationLocation]),
-      type: 'direct'
-    },
-    {
-      name: 'Least Crowded',
-      waypoints: generateCrowdAvoidingRoute('avoid'),
-      distance: 1.2 * calculateDistance(userLocation, destinationLocation),
-      crowdScore: 0.2,
-      type: 'crowdAvoid'
-    },
-    {
-      name: 'Balanced',
-      waypoints: generateBalancedRoute(),
-      distance: 1.05 * calculateDistance(userLocation, destinationLocation),
-      crowdScore: 0.4,
-      type: 'balanced'
-    }
-  ];
-
-  // Sort by crowd score
-  allRoutes.sort((a, b) => a.crowdScore - b.crowdScore);
-}
-
-function generateCrowdAvoidingRoute(mode) {
-  // Create a route that avoids high crowd density areas
-  const waypoints = [userLocation];
-
-  // Calculate detour to avoid crowds
-  const crowdZones = Object.values(SIMULATED_CROWD_ZONES).filter(z => z.density > 0.5);
-  
-  // Add waypoint that avoids crowds
-  const avoidPoint = {
-    lat: userLocation.lat - 0.01,
-    lng: userLocation.lng + 0.01
-  };
-
-  waypoints.push(avoidPoint);
-  waypoints.push(destinationLocation);
-
-  return waypoints;
-}
-
-function generateBalancedRoute() {
-  // Create a balanced route between speed and safety
-  const waypoints = [userLocation];
-
-  // Add intermediate waypoint
-  const midPoint = {
-    lat: (userLocation.lat + destinationLocation.lat) / 2,
-    lng: (userLocation.lng + destinationLocation.lng) / 2
-  };
-
-  waypoints.push(midPoint);
-  waypoints.push(destinationLocation);
-
-  return waypoints;
+  } catch (error) {
+    console.error('OSRM error:', error);
+    showNotification('Error calculating route', 'error');
+    showRouteStatus('Routing failed', false);
+  }
 }
 
 function selectBestRoute() {
@@ -269,33 +264,34 @@ function selectBestRoute() {
 function displayRouteOnMap() {
   if (!map || !currentRoute) return;
 
-  // Remove old route if exists
-  if (routeAmbulance) {
-    routeAmbulance.remove();
-  }
+  if (routeAmbulance) routeAmbulance.remove();
+  
+  // Clear previous route layers
+  if (window.currentRouteLayer) map.removeLayer(window.currentRouteLayer);
+  if (window.routeArrowLayers) window.routeArrowLayers.forEach(layer => map.removeLayer(layer));
+  window.routeArrowLayers = [];
 
   // Add destination marker
+  map.eachLayer(layer => {
+    if (layer.options && layer.options.title === 'destination') map.removeLayer(layer);
+  });
+
   const destIcon = L.divIcon({
-    html: `
-      <div class="relative flex items-center justify-center">
-        <div class="w-8 h-8 rounded-full bg-red-500 border-4 border-white shadow-lg shadow-red-500/50"></div>
-      </div>
-    `,
-    className: '',
+    html: `<div class="w-8 h-8 rounded-full bg-red-500 border-4 border-white shadow-lg shadow-red-500/50"></div>`,
+    className: 'flex items-center justify-center',
     iconSize: [40, 40],
     iconAnchor: [20, 20]
   });
 
-  L.marker([destinationLocation.lat, destinationLocation.lng], { icon: destIcon })
-    .addTo(map)
-    .bindPopup('<strong>Destination</strong>');
+  L.marker([destinationLocation.lat, destinationLocation.lng], { icon: destIcon, title: 'destination' })
+    .addTo(map).bindPopup('<strong>Destination</strong>');
 
   // Draw route polyline
   const latlngs = currentRoute.waypoints.map(p => [p.lat, p.lng]);
 
-  L.polyline(latlngs, {
+  window.currentRouteLayer = L.polyline(latlngs, {
     color: '#06b6d4',
-    weight: 3,
+    weight: 5,
     opacity: 0.8,
     smoothFactor: 1
   }).addTo(map);
@@ -315,65 +311,128 @@ function displayRouteOnMap() {
 }
 
 function addDirectionArrows(latlngs) {
-  // Add arrows along the route
-  for (let i = 0; i < latlngs.length - 1; i++) {
+  const step = Math.max(1, Math.floor(latlngs.length / 10));
+  for (let i = 0; i < latlngs.length - step; i += step) {
     const start = latlngs[i];
-    const end = latlngs[i + 1];
+    const end = latlngs[i + step];
+    if (!start || !end) continue;
     const angle = calculateBearing(start, end);
 
     const arrowIcon = L.divIcon({
-      html: `<div style="transform: rotate(${angle}deg); color: #06b6d4;">→</div>`,
+      html: `<div style="transform: rotate(${angle}deg); color: #06b6d4; text-shadow: 0 0 5px rgba(255,255,255,0.8);">→</div>`,
       className: 'text-2xl font-bold',
-      iconSize: [20, 20]
+      iconSize: [20, 20],
+      iconAnchor: [10, 10]
     });
 
     const midLat = (start[0] + end[0]) / 2;
     const midLng = (start[1] + end[1]) / 2;
 
-    L.marker([midLat, midLng], { icon: arrowIcon }).addTo(map);
+    const marker = L.marker([midLat, midLng], { icon: arrowIcon }).addTo(map);
+    window.routeArrowLayers.push(marker);
   }
 }
 
 function animateAmbulanceOnMap(latlngs) {
-  // Animate ambulance moving along the route
-  let currentIndex = 0;
-  let currentStep = 0;
-  const stepsPerSegment = 50;
-
-  const ambulanceIcon = L.divIcon({
-    html: `
-      <div class="w-8 h-8 rounded-full bg-yellow-400 border-2 border-white shadow-lg shadow-yellow-400/50 flex items-center justify-center text-xs font-bold">
-        🚑
-      </div>
-    `,
+  if (window.ambulanceInterval) clearInterval(window.ambulanceInterval);
+  if (window.navigationWatchId) navigator.geolocation.clearWatch(window.navigationWatchId);
+  
+  const navIcon = L.divIcon({
+    html: `<div class="w-8 h-8 rounded-full bg-blue-500 border-2 border-white shadow-lg shadow-blue-500/50 flex items-center justify-center text-xs font-bold text-white">📍</div>`,
     className: '',
     iconSize: [32, 32],
     iconAnchor: [16, 16]
   });
 
-  routeAmbulance = L.marker([latlngs[0][0], latlngs[0][1]], { icon: ambulanceIcon }).addTo(map);
+  routeAmbulance = L.marker([latlngs[0][0], latlngs[0][1]], { icon: navIcon }).addTo(map);
 
-  const animationInterval = setInterval(() => {
+  // Track original route stats to proportionally reduce them in real-time
+  const originalDistance = currentRoute.distance;
+  const originalDuration = currentRoute.duration;
+
+  // Start actual GPS tracking instead of fake simulation
+  if (navigator.geolocation) {
+    window.navigationWatchId = navigator.geolocation.watchPosition((position) => {
+      const lat = position.coords.latitude;
+      const lng = position.coords.longitude;
+      
+      routeAmbulance.setLatLng([lat, lng]);
+
+      // Real-time distance & ETA countdown update based on actual position
+      const remainingDistance = calculateDistance({lat, lng}, destinationLocation);
+      const avgSpeed = originalDistance / (originalDuration || 1); 
+      const remainingDuration = remainingDistance / (avgSpeed || 0.66); // fallback to ~40km/h
+      
+      document.getElementById('distanceDisplay').textContent = `${remainingDistance.toFixed(1)} km`;
+      document.getElementById('durationDisplay').textContent = `${Math.ceil(remainingDuration)} mins`;
+
+      // If within 50 meters, consider arrived
+      if (remainingDistance < 0.05) {
+        navigator.geolocation.clearWatch(window.navigationWatchId);
+        showNotification('Destination reached! 🎉', 'success');
+        document.getElementById('distanceDisplay').textContent = `0.0 km`;
+        document.getElementById('durationDisplay').textContent = `0 mins`;
+      }
+    }, (error) => {
+      console.warn('Live navigation GPS error:', error);
+    }, { enableHighAccuracy: true, maximumAge: 0 });
+  }
+}
+
+function startSimulation() {
+  if (window.ambulanceInterval) clearInterval(window.ambulanceInterval);
+  if (simulationInterval) clearInterval(simulationInterval);
+  if (window.navigationWatchId) navigator.geolocation.clearWatch(window.navigationWatchId);
+  
+  if (!currentRoute || !routeAmbulance) {
+    showNotification('Please calculate a route first', 'error');
+    return;
+  }
+  
+  const latlngs = currentRoute.waypoints.map(p => [p.lat, p.lng]);
+  let currentIndex = 0;
+  let currentStep = 0;
+  const stepsPerSegment = 20;
+  
+  const originalDistance = currentRoute.distance;
+  const originalDuration = currentRoute.duration;
+  const totalPoints = latlngs.length;
+
+  showNotification('Simulation Started!', 'info');
+  document.getElementById('startSimBtn').classList.add('hidden');
+
+  simulationInterval = setInterval(() => {
     if (currentIndex >= latlngs.length - 1) {
-      clearInterval(animationInterval);
+      clearInterval(simulationInterval);
       showNotification('Destination reached! 🎉', 'success');
+      document.getElementById('distanceDisplay').textContent = `0.0 km`;
+      document.getElementById('durationDisplay').textContent = `0 mins`;
       return;
     }
 
     const start = latlngs[currentIndex];
     const end = latlngs[currentIndex + 1];
-
     const lat = start[0] + (end[0] - start[0]) * (currentStep / stepsPerSegment);
     const lng = start[1] + (end[1] - start[1]) * (currentStep / stepsPerSegment);
 
     routeAmbulance.setLatLng([lat, lng]);
+    map.panTo([lat, lng]); // Keep camera focused on moving icon
+
+    if (currentStep % 5 === 0) {
+      const progress = (currentIndex + (currentStep / stepsPerSegment)) / Math.max(1, totalPoints - 1);
+      const remainingDistance = Math.max(0, originalDistance * (1 - progress));
+      const remainingDuration = Math.max(0, originalDuration * (1 - progress));
+      
+      document.getElementById('distanceDisplay').textContent = `${remainingDistance.toFixed(1)} km`;
+      document.getElementById('durationDisplay').textContent = `${Math.ceil(remainingDuration)} mins`;
+    }
 
     currentStep++;
     if (currentStep >= stepsPerSegment) {
       currentStep = 0;
       currentIndex++;
     }
-  }, 100);
+  }, 50);
 }
 
 // ========== DISTANCE & CROWD CALCULATIONS ==========
@@ -392,19 +451,20 @@ function calculateDistance(point1, point2) {
 }
 
 function calculateCrowdScore(waypoints) {
-  // Calculate average crowd score along the route
   let totalCrowdScore = 0;
   let countPoints = 0;
+  const step = Math.max(1, Math.floor(waypoints.length / 50));
 
-  waypoints.forEach(waypoint => {
+  for (let i = 0; i < waypoints.length; i += step) {
+    const waypoint = waypoints[i];
     Object.values(SIMULATED_CROWD_ZONES).forEach(zone => {
       const distance = calculateDistance(waypoint, { lat: zone.lat, lng: zone.lng });
-      if (distance < zone.radius / 111) { // Convert meters to degrees
+      if (distance < (zone.radius / 1000)) { 
         totalCrowdScore += zone.density;
         countPoints++;
       }
     });
-  });
+  }
 
   return countPoints > 0 ? totalCrowdScore / countPoints : 0;
 }
@@ -482,10 +542,10 @@ function updateRouteInfo() {
   if (!currentRoute) return;
 
   const distance = currentRoute.distance;
-  const duration = Math.ceil(distance / 40 * 60); // Assume 40 km/h average speed
+  const duration = currentRoute.duration;
 
   document.getElementById('distanceDisplay').textContent = `${distance.toFixed(1)} km`;
-  document.getElementById('durationDisplay').textContent = `${duration} mins`;
+  document.getElementById('durationDisplay').textContent = `${Math.ceil(duration)} mins`;
   
   const crowdLevel = currentRoute.crowdScore < 0.3 ? 'Safe 🟢' : 
                      currentRoute.crowdScore < 0.6 ? 'Moderate 🟡' : 'High Risk 🔴';
@@ -542,7 +602,7 @@ function toggleEmergencyMode() {
 }
 
 // ========== DESTINATION SEARCH ==========
-function searchDestination() {
+async function searchDestination() {
   const input = document.getElementById('destinationInput').value;
   
   if (!input) {
@@ -550,25 +610,42 @@ function searchDestination() {
     return;
   }
 
-  // Simulate geocoding (in real scenario, use Nominatim or Google Maps API)
-  const commonLocations = {
-    'hospital': { lat: 19.810, lng: 84.785 },
-    'market': { lat: 19.815, lng: 84.795 },
-    'station': { lat: 19.820, lng: 84.800 },
-    'park': { lat: 19.805, lng: 84.790 },
-    'airport': { lat: 19.825, lng: 84.805 }
-  };
+  showRouteStatus('Searching location globally...', false);
 
-  const lowerInput = input.toLowerCase();
-  for (const [location, coords] of Object.entries(commonLocations)) {
-    if (lowerInput.includes(location)) {
-      document.getElementById('destinationInput').value = `${coords.lat}, ${coords.lng}`;
-      showNotification(`Found: ${location.toUpperCase()}`, 'success');
-      return;
+  try {
+    const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(input)}&format=json&limit=1`);
+    const data = await res.json();
+    
+    if (data && data.length > 0) {
+      document.getElementById('destinationInput').value = data[0].display_name;
+      destinationLocation = { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
+      
+      if (map) {
+        map.setView([destinationLocation.lat, destinationLocation.lng], 13);
+        map.eachLayer(layer => {
+          if (layer.options && layer.options.title === 'destination') map.removeLayer(layer);
+        });
+
+        const destIcon = L.divIcon({
+          html: `<div class="w-8 h-8 rounded-full bg-red-500 border-4 border-white shadow-lg shadow-red-500/50"></div>`,
+          className: 'flex items-center justify-center',
+          iconSize: [40, 40],
+          iconAnchor: [20, 20]
+        });
+
+        L.marker([destinationLocation.lat, destinationLocation.lng], { icon: destIcon, title: 'destination' })
+          .addTo(map).bindPopup('<strong>Destination</strong>').openPopup();
+      }
+      showNotification('Location found!', 'success');
+      showRouteStatus('Ready to calculate route', true);
+    } else {
+      showNotification('Location not found. Try adding city/state.', 'warning');
+      showRouteStatus('Search failed', false);
     }
+  } catch(e) {
+    console.error('Search error:', e);
+    showNotification('Error searching location', 'error');
   }
-
-  showNotification('Location not found. Please enter coordinates (lat, lng)', 'warning');
 }
 
 // ========== REAL-TIME CROWD DATA FEED ==========

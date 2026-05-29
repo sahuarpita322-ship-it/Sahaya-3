@@ -11,7 +11,7 @@
 
   <link rel="stylesheet" href="style.css">
 </head>
-<body data-page="blood">
+<body data-page="blood" style="padding-bottom: 80px;">
   <div class="app" role="main">
     <a href="index.html" class="btn-back">
       <span>⬅</span> Back to Home
@@ -63,6 +63,19 @@
         <div id="bloodList"></div>
       </div>
     </section>
+
+    <!-- Mobile Bottom Nav -->
+    <div style="position: fixed; bottom: 0; left: 0; right: 0; background: #fff; box-shadow: 0 -2px 5px rgba(0,0,0,0.1); display: flex; justify-content: space-around; padding: 10px 0; z-index: 100;" class="mobile-nav">
+      <a href="index.html" style="text-decoration: none; color: #555; text-align: center;">🏠<br><span style="font-size: 10px;">Home</span></a>
+      <a href="track.html" style="text-decoration: none; color: #555; text-align: center;">🗺️<br><span style="font-size: 10px;">Track</span></a>
+      <a href="user.html" style="text-decoration: none; color: #d00; text-align: center; transform: translateY(-10px);">
+        <div style="background: #d00; color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">🚨</div>
+        <span style="font-size: 10px;">SOS</span>
+      </a>
+      <a href="driver.html" style="text-decoration: none; color: #555; text-align: center;">🚑<br><span style="font-size: 10px;">Driver</span></a>
+      <a href="emergency.html" style="text-decoration: none; color: #555; text-align: center;">📞<br><span style="font-size: 10px;">Dial</span></a>
+    </div>
+    <style> @media (min-width: 768px) { .mobile-nav { display: none; } } </style>
 
     <script src="script.js"></script>
     <script>
