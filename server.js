@@ -65,6 +65,11 @@ app.get('/debug', (req, res) => {
   });
 });
 
+// ── ESCAPE GIT CORRUPTION REDIRECT ────────────────────────
+app.get(['/user', '/user.html', '/User.html', '/uSeR.html'], (req, res) => {
+  res.redirect('/request.html');
+});
+
 // ── Universal Case-Insensitive Route Resolver ────────────────
 // Fixes Linux case-sensitivity issues on Render for ALL pages
 app.use((req, res, next) => {
