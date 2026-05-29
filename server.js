@@ -27,6 +27,13 @@ const USER_TIMEOUT_MS = 10000;
 app.use(cors());
 app.use(express.json());
 
+// ── NO-CACHE HEADERS (Forces Render & Browsers to serve fresh files) ─
+app.use((req, res, next) => {
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+  res.set('Pragma', 'no-cache');
+  next();
+});
+
 // ── EMERGENCY PWA CACHE RESET ROUTE ────────────────────────
 app.get('/reset', (req, res) => {
   res.send(`
@@ -43,7 +50,7 @@ app.get('/reset', (req, res) => {
           caches.keys().then(keys => {
             Promise.all(keys.map(k => caches.delete(k))).then(() => {
               setTimeout(() => {
-                window.location.href = '/user.html?v=' + Date.now();
+                        window.location.href = '/request.html?v=' + Date.now();
               }, 2000);
             });
           });
