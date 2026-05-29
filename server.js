@@ -27,6 +27,44 @@ const USER_TIMEOUT_MS = 10000;
 app.use(cors());
 app.use(express.json());
 
+// ── EMERGENCY PWA CACHE RESET ROUTE ────────────────────────
+app.get('/reset', (req, res) => {
+  res.send(`
+    <html><body style="font-family: sans-serif; text-align: center; padding: 50px;">
+      <h2>🔄 Force Resetting App Cache...</h2>
+      <p>Clearing all corrupted offline files. Please wait 2 seconds.</p>
+      <script>
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.getRegistrations().then(function(registrations) {
+            for(let r of registrations) r.unregister();
+          });
+        }
+        if (window.caches) {
+          caches.keys().then(keys => {
+            Promise.all(keys.map(k => caches.delete(k))).then(() => {
+              setTimeout(() => {
+                window.location.href = '/user.html?v=' + Date.now();
+              }, 2000);
+            });
+          });
+        }
+      </script>
+    </body></html>
+  `);
+});
+
+// ── DIAGNOSTIC ROUTE (To verify files made it to Render) ────
+app.get('/debug', (req, res) => {
+  const getFiles = (dir) => fs.existsSync(dir) ? fs.readdirSync(dir).map(f => {
+    try { const stat = fs.statSync(path.join(dir, f)); return `${f} (${stat.size} bytes)`; } catch(e) { return f; }
+  }) : ['Directory not found'];
+  
+  res.json({
+    Root_Folder: getFiles(__dirname),
+    WWW_Folder: getFiles(path.join(__dirname, 'www'))
+  });
+});
+
 // ── Universal Case-Insensitive Route Resolver ────────────────
 // Fixes Linux case-sensitivity issues on Render for ALL pages
 app.use((req, res, next) => {
