@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Sahaya Emergency Tracker",
   "scripts": {
-    "start": "node server.js",
+    "start": "node copy-assets.js && node server.js",
     "android": "npx cap open android",
     "build": "node copy-assets.js",
     "sync": "npm run build && npx cap sync"
