@@ -10,6 +10,7 @@ const WebSocket = require("ws");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const path = require("path");
+const fs = require("fs");
 
 const app = express();
 const server = http.createServer(app);
@@ -25,6 +26,20 @@ const USER_TIMEOUT_MS = 10000;
 // ── Static file serving ──────────────────────────────────────
 app.use(cors());
 app.use(express.json());
+
+// ── Case-Insensitive Route for User Page ─────────────────────
+// Fixes the Linux case-sensitivity issue on Render where User.html != user.html
+app.get(['/user', '/user.html', '/User.html'], (req, res, next) => {
+  const lowerPath = path.join(__dirname, 'www', 'user.html');
+  const upperPath = path.join(__dirname, 'www', 'User.html');
+  if (fs.existsSync(lowerPath)) {
+    return res.sendFile(lowerPath);
+  } else if (fs.existsSync(upperPath)) {
+    return res.sendFile(upperPath);
+  }
+  next();
+});
+
 app.use(express.static(path.join(__dirname, 'www'), { extensions: ['html', 'htm'] })); // Auto-resolves .html extensions
 
 // ── REST: Driver PIN login → returns JWT ─────────────────────
@@ -686,6 +701,25 @@ setInterval(() => {
     }
   }
 }, CLEANUP_INTERVAL_MS);
+
+// ── 404 Fallback Handler ──────────────────────────────────────
+app.use((req, res) => {
+  res.status(404).send(`
+    <div style="font-family: sans-serif; text-align: center; padding: 50px; color: #333;">
+      <h2 style="color: #e53e3e;">⚠️ 404 - Page Not Found</h2>
+      <p>The requested file <b>${req.path}</b> does not exist on the live server.</p>
+      <div style="background: #f7fafc; padding: 20px; border-radius: 10px; display: inline-block; text-align: left; margin: 20px 0; border: 1px solid #e2e8f0;">
+        <b>🛠️ How to fix this:</b><br><br>
+        1. Ensure the file is named correctly (Linux is case-sensitive!).<br>
+        2. Force-push the missing files to GitHub by running this in your VS Code terminal:<br>
+        <code style="background: #e2e8f0; padding: 2px 6px; border-radius: 4px; display:block; margin-top:5px; font-weight: bold;">git add www/ -f</code>
+        <code style="background: #e2e8f0; padding: 2px 6px; border-radius: 4px; display:block; margin-top:5px; font-weight: bold;">git commit -m "Upload missing pages"</code>
+        <code style="background: #e2e8f0; padding: 2px 6px; border-radius: 4px; display:block; margin-top:5px; font-weight: bold;">git push</code>
+      </div><br>
+      <a href="/" style="display: inline-block; padding: 12px 24px; background: #3182ce; color: white; text-decoration: none; border-radius: 8px; font-weight: bold;">Return Home</a>
+    </div>
+  `);
+});
 
 // ── Start ─────────────────────────────────────────────────────
 server.listen(PORT, () => {
