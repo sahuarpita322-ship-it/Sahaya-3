@@ -382,6 +382,7 @@
 
       socket.onerror = function (error) {
         console.error('[USER] ❌ WebSocket error:', error);
+        updateStatus("❌ Server connection offline. Make sure node server.js is running.", "error");
       };
 
       socket.onclose = function () {
@@ -559,6 +560,13 @@
               initWebSocket();
             }
             socket.addEventListener('open', dispatchPayload, { once: true });
+            
+            // Add a timeout to warn the user if the server is completely down
+            setTimeout(() => {
+              if (!socket || socket.readyState !== WebSocket.OPEN) {
+                updateStatus("❌ Server timeout. Please start the backend (node server.js).", "error");
+              }
+            }, 3000);
           }
         },
         function (error) {

@@ -341,6 +341,9 @@
         const data = await res.json();
         if (data.valid) {
           document.getElementById("authGate").style.display = "none";
+          window.addEventListener('DOMContentLoaded', () => {
+            if (typeof updateDashboardUI === 'function') updateDashboardUI();
+          });
         }
       } catch { /* stay on gate */ }
     })();
@@ -386,7 +389,19 @@
 
   <div class="container">
     <div class="header">
-      <h1 id="driverPanelTitle">🚑 Driver Panel</h1>
+      <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+        <h1 id="driverPanelTitle">🚑 Driver Panel</h1>
+        <select id="activeVehicleType" onchange="changeVehicleType()" style="
+          padding: 8px 12px; font-size: 0.9rem; border-radius: 8px;
+          border: 2px solid #e2e8f0; background: #fff;
+          color: #2d3748; outline: none; font-weight: 600; cursor: pointer;
+        ">
+          <option value="ambulance">🚑 Ambulance</option>
+          <option value="police">🚓 Police</option>
+          <option value="fire">🚒 Fire Brigade</option>
+          <option value="national">🚨 National</option>
+        </select>
+      </div>
       <div class="status-indicator">
         <span class="status-dot"></span>
         <span id="connectionStatus">Connected</span>
@@ -570,6 +585,11 @@
         if(boxTitle) boxTitle.innerHTML = `${vData.icon} ${vData.name} Control Panel`;
         const locBtn = document.getElementById('showLocBtn');
         if(locBtn) locBtn.innerHTML = `${vData.icon} Show ${vData.name} Location`;
+        
+        const activeSelect = document.getElementById('activeVehicleType');
+        if (activeSelect && activeSelect.value !== vType) {
+          activeSelect.value = vType;
+        }
       }
     }
 
@@ -663,9 +683,42 @@
 
       animate();
     }
+
+    // Change vehicle type on the fly
+    function changeVehicleType() {
+      const newType = document.getElementById('activeVehicleType').value;
+      sessionStorage.setItem("driverVehicleType", newType);
+      
+      updateDashboardUI();
+      
+      if (markers[driverId]) {
+        const vData = vehicleMap[newType] || vehicleMap['ambulance'];
+        markers[driverId].setIcon(createVehicleIcon('YOU'));
+        markers[driverId].getPopup().setContent(`<div style="font-weight:bold; color:${vData.color};">${vData.icon} ${vData.name}<br>You are here</div>`);
+      }
+      
+      if (ws && ws.readyState === WebSocket.OPEN && navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(pos => {
+          ws.send(JSON.stringify({
+            type: 'locationUpdate',
+            driverId: driverId,
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+            serviceType: newType
+          }));
+        }, () => {}, { enableHighAccuracy: true, maximumAge: 0 });
+      }
+      
+      updateStatus(`Vehicle changed to ${vehicleMap[newType].name}`, 'info');
+    }
+
     // Generate a stable-ish driver id for this session
     const driverId = 'Driver_' + Math.random().toString(36).substr(2, 8);
     console.log('[DRIVER] Generated driverId:', driverId);
+
+    // Emergency Alert Sound
+    const alertSound = new Audio('https://actions.google.com/sounds/v1/alarms/warning_alarm.ogg');
+    alertSound.loop = true;
 
     // Get WebSocket URL dynamically
     function getWebSocketURL() {
@@ -690,6 +743,7 @@
 
       ws.onopen = function () {
         console.log('[DRIVER] ✅ WebSocket connected successfully');
+        updateDashboardUI();
         // Register as driver
         const driverToken = sessionStorage.getItem("driverToken");
         const registerMsg = JSON.stringify({ type: 'driver', driverId: driverId, token: driverToken });
@@ -747,6 +801,7 @@
       ws.onerror = function (error) {
         console.error('[DRIVER] WebSocket error:', error);
         updateStatus('Connection error', 'error');
+        document.getElementById('requestText').innerHTML = '❌ Server Offline. Run <br><code>node server.js</code>';
         document.getElementById('connectionStatus').textContent = 'Disconnected';
       };
 
@@ -893,6 +948,11 @@
       map.setView([data.lat, data.lng], 14);
       updateStatus(`🚨 EMERGENCY - ${alertName} Request Received!`, 'emergency');
 
+      // Play alert sound
+      try {
+        alertSound.play().catch(e => console.log("Audio play blocked by browser:", e));
+      } catch(e) {}
+
       // Show prominent modal
       document.getElementById('modalText').innerHTML = `${isGeneralSOS ? '🚨 SOS' : vData.icon} ${alertName.toUpperCase()} REQUEST!`;
       document.getElementById('modalText').style.color = '#f56565';
@@ -968,6 +1028,9 @@
 
     // Accept request
     function acceptRequest() {
+      alertSound.pause();
+      alertSound.currentTime = 0;
+
       if (!currentEmergency && !currentRequest) return;
 
       const requestData = currentEmergency || currentRequest;
@@ -1011,6 +1074,9 @@
 
     // Reject request
     function rejectRequest() {
+      alertSound.pause();
+      alertSound.currentTime = 0;
+
       if (!currentEmergency && !currentRequest) return;
 
       const requestData = currentEmergency || currentRequest;
@@ -1044,6 +1110,8 @@
       const backdrop = document.getElementById('requestModalBackdrop');
       if (modal) modal.style.display = 'none';
       if (backdrop) backdrop.style.display = 'none';
+      alertSound.pause();
+      alertSound.currentTime = 0;
     }
 
     function showRequestModal() {

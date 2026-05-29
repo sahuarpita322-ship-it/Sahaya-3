@@ -493,8 +493,7 @@
     let trackingPairs = {}; // Store patient-driver tracking pairs
     let alertPlayed = {}; // Track which users have triggered the proximity alert
     let currentTileLayer = null;
-    let wakeLock = null;
-    const proximityAlertSound = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
+    let wakeLock = null;    const proximityAlertSound = new Audio('https://actions.google.com/sounds/v1/alarms/warning_alarm.ogg');
     
     // URL Parameters for auto-selecting a shared user
     const urlParams = new URLSearchParams(window.location.search);

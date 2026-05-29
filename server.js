@@ -41,6 +41,7 @@ app.get(['/user', '/user.html', '/User.html'], (req, res, next) => {
 });
 
 app.use(express.static(path.join(__dirname, 'www'), { extensions: ['html', 'htm'] })); // Auto-resolves .html extensions
+app.use(express.static(__dirname, { extensions: ['html', 'htm'] })); // 🛡️ FOOLPROOF FALLBACK: If missing in www/, serve it directly from the root folder!
 
 // ── REST: Driver PIN login → returns JWT ─────────────────────
 app.post("/api/driver-login", (req, res) => {

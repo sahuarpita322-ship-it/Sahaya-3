@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Pharmacy – SAHAYA</title>
+  <script>
+    tailwind.config = { darkMode: 'class', }
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="modern-style.css">
+</head>
+<body class="relative min-h-screen overflow-x-hidden bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans pb-20 md:pb-0 transition-colors duration-500">
+  
+  <div class="mesh-bg"></div>
+  <div id="particles" class="fixed inset-0 z-[-1] pointer-events-none overflow-hidden"></div>
+
+  <!-- Top Navbar -->
+  <nav class="fixed top-0 w-full z-50 glass-nav border-b border-purple-500/20 backdrop-blur-xl transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3 cursor-pointer group" onclick="window.location.href='index.html'">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-fuchsia-600 flex items-center justify-center text-white font-bold shadow-[0_0_15px_rgba(168,85,247,0.5)] group-hover:scale-110 transition-transform">
+          <i data-lucide="pill"></i>
+        </div>
+        <div>
+          <div class="text-sm font-bold text-purple-600 dark:text-purple-400">SAHAYA</div>
+          <div class="text-xs text-purple-500 dark:text-purple-400/70">Smart Pharmacy</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-4">
+        <button id="theme-toggle" class="p-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 transition ripple text-slate-900 dark:text-white" aria-label="Toggle Dark Mode">
+          <i data-lucide="moon" class="w-5 h-5 dark:hidden"></i>
+          <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
+        </button>
+        <a href="index.html" class="px-4 py-2 rounded-full bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 text-purple-700 dark:text-purple-300 text-sm font-semibold transition shadow-sm">
+          Back to Home
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-12 flex flex-col items-center animate-fade-in-up" role="main">
+    
+    <h1 class="text-3xl md:text-5xl font-extrabold text-center mb-4 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-fuchsia-500 to-pink-500 dark:from-purple-400 dark:via-fuchsia-400 dark:to-pink-400 tracking-wider">
+      AI Medicine Assistant
+    </h1>
+    <p class="text-slate-600 dark:text-slate-400 mb-10 text-center text-lg">Describe your symptoms for over-the-counter suggestions, or order directly.</p>
+
+    <!-- Direct Order Section -->
+    <div class="w-full glass-card border border-purple-500/20 bg-purple-50 dark:bg-slate-900/80 p-6 md:p-8 rounded-3xl shadow-[0_0_30px_rgba(168,85,247,0.1)] mb-8 flex flex-col md:flex-row items-center justify-between gap-6">
+      <div>
+        <h2 class="text-xl font-bold flex items-center gap-2 mb-2"><i data-lucide="shopping-bag" class="text-purple-500 w-6 h-6"></i> Know what to order?</h2>
+        <p class="text-sm opacity-80">Directly search and buy medicines, ORS, or vitals using Truemeds for fast delivery.</p>
+      </div>
+      <a href="https://www.truemeds.in/" target="_blank" class="shrink-0 px-8 py-4 bg-gradient-to-r from-purple-600 to-fuchsia-500 hover:from-purple-500 hover:to-fuchsia-400 text-white font-bold rounded-xl transition shadow-[0_0_20px_rgba(168,85,247,0.4)] flex items-center gap-2 hover:scale-105 active:scale-95">
+        <i data-lucide="external-link" class="w-5 h-5"></i> Order on Truemeds
+      </a>
+    </div>
+
+    <!-- AI Symptoms Checker Section -->
+    <div class="w-full glass-card border border-blue-500/20 bg-blue-50 dark:bg-slate-900/80 p-6 md:p-8 rounded-3xl shadow-[0_0_30px_rgba(59,130,246,0.1)]">
+      <h2 class="text-xl font-bold flex items-center gap-2 mb-4"><i data-lucide="bot" class="text-blue-500 w-6 h-6"></i> Not sure? Ask AI</h2>
+      <p class="text-sm opacity-80 mb-6">Describe how you are feeling, and our AI will suggest common over-the-counter medicines (like ORS for dehydration, Paracetamol for fever, etc.).</p>
+      
+      <div class="relative mb-6">
+        <textarea id="symptomsInput" placeholder="I have a mild fever and body ache since morning..." class="w-full bg-white dark:bg-slate-800 border border-blue-500/30 rounded-xl p-4 text-slate-900 dark:text-white outline-none focus:border-blue-500 transition shadow-sm h-32 resize-none"></textarea>
+      </div>
+
+      <button onclick="getMedicineSuggestions()" id="analyzeBtn" class="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition shadow-[0_0_15px_rgba(59,130,246,0.4)] flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98]">
+        <i data-lucide="sparkles" class="w-5 h-5"></i> Get Medicine Suggestions
+      </button>
+
+      <!-- AI Response Container -->
+      <div id="aiResponseContainer" class="hidden mt-8 p-6 bg-white/50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl">
+        <div class="flex items-center gap-3 mb-4 border-b border-slate-200 dark:border-slate-600 pb-3">
+          <div class="w-10 h-10 rounded-full bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center"><i data-lucide="check-circle"></i></div>
+          <h3 class="font-bold text-lg">AI Suggestions</h3>
+        </div>
+        <div id="aiText" class="opacity-90 text-sm leading-relaxed mb-6 whitespace-pre-wrap font-medium"></div>
+        
+        <div class="bg-blue-100 dark:bg-blue-900/20 border border-blue-300 dark:border-blue-500/30 p-4 rounded-xl">
+          <p class="text-xs text-blue-800 dark:text-blue-300 font-bold mb-3 uppercase tracking-wider">Ready to buy these?</p>
+          <a href="https://www.truemeds.in/" target="_blank" class="w-full py-3 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-lg transition flex items-center justify-center gap-2 shadow-lg">
+            <i data-lucide="shopping-cart" class="w-4 h-4"></i> Search & Order on Truemeds
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search History Section -->
+    <div class="w-full glass-card border border-slate-500/20 bg-slate-50 dark:bg-slate-900/80 p-6 md:p-8 rounded-3xl shadow-[0_0_30px_rgba(0,0,0,0.1)] mt-8">
+      <h2 class="text-xl font-bold flex items-center gap-2 mb-4"><i data-lucide="history" class="text-slate-500 w-6 h-6"></i> Recent Searches</h2>
+      <div id="searchHistoryContainer" class="flex flex-col gap-3">
+        <p class="text-sm text-slate-500 italic">No recent searches.</p>
+      </div>
+    </div>
+  </main>
+
+  <script src="modern-script.js"></script>
+  <script>
+    async function getMedicineSuggestions() {
+      const input = document.getElementById('symptomsInput').value.trim();
+      if (!input) { alert("Please enter your symptoms first."); return; }
+      saveSearchHistory(input);
+      
+      const btn = document.getElementById('analyzeBtn');
+      const container = document.getElementById('aiResponseContainer');
+      const textEl = document.getElementById('aiText');
+      btn.disabled = true;
+      btn.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Analyzing...`;
+      lucide.createIcons();
+      container.classList.add('hidden');
+      const GEMINI_API_KEY = "AIzaSyCHGfeFxXgkepY_xnEXs1UzTTP0tvh2SCc"; 
+      const prompt = `Act as a helpful medical assistant. A user has the following symptoms: "${input}". Suggest 2-3 common over-the-counter (OTC) allopathic medicines, and 1-2 common homeopathic remedies, vitals, or drinks (like ORS) they can easily order online. Keep the response brief, bulleted, and include a strong disclaimer that this is NOT professional medical advice and they should consult a doctor if symptoms persist. Do not use markdown stars.`;
+      try {
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({contents: [{parts: [{text: prompt}]}]}) });
+        const data = await res.json();
+        
+        if(data.candidates && data.candidates.length > 0) {
+          // Format the AI response properly if successful
+          textEl.innerHTML = data.candidates[0].content.parts[0].text.replace(/\*/g, '').replace(/\n/g, '<br>');
+        } else {
+          console.warn("API Error (Quota/Key issue):", data.error);
+          // Use local fallback if API key is exhausted/invalid
+          textEl.innerHTML = getFallbackSuggestions(input);
+        }
+        container.classList.remove('hidden');
+      } catch (e) { 
+        console.error("Network Error:", e);
+        textEl.innerHTML = getFallbackSuggestions(input); 
+        container.classList.remove('hidden'); 
+      } finally {
+        btn.disabled = false; btn.innerHTML = `<i data-lucide="sparkles" class="w-5 h-5"></i> Get Medicine Suggestions`; lucide.createIcons();
+      }
+    }
+
+    // Smart Offline Fallback if the AI API fails
+    function getFallbackSuggestions(symptoms) {
+      const s = symptoms.toLowerCase();
+      let suggestions = "<span class='text-purple-500 font-bold'><i>(Smart Fallback Mode)</i></span><br><br>Based on your symptoms, here are some common OTC suggestions:<br><br>";
+      
+      if (s.includes('fever') || s.includes('headache') || s.includes('pain') || s.includes('body')) {
+         suggestions += "• <b>Paracetamol (Crocin / Dolo 650)</b> - For fever and body ache.<br>";
+         suggestions += "• <b>Belladonna 30C</b> - (Homeopathic) For sudden fever or headache.<br>";
+      }
+      if (s.includes('cold') || s.includes('cough') || s.includes('nose') || s.includes('throat')) {
+         suggestions += "• <b>Cetirizine / Cheston Cold</b> - For allergy and cold symptoms.<br>• <b>Honitus / Benadryl</b> - For throat relief.<br>";
+         suggestions += "• <b>Aconite 30C</b> - (Homeopathic) For sudden cold or throat tickle.<br>";
+      }
+      if (s.includes('loose motion') || s.includes('stomach') || s.includes('diarrhea') || s.includes('vomit')) {
+         suggestions += "• <b>ORS (Oral Rehydration Salts) / Electral</b> - To prevent dehydration.<br>• <b>Eno / Digene</b> - For gastric relief.<br>";
+         suggestions += "• <b>Arsenicum Album 30C</b> - (Homeopathic) For stomach upset.<br>";
+      }
+      if (suggestions.indexOf("•") === -1) {
+         suggestions += "• <b>ORS (Oral Rehydration Salts)</b> - Good for general hydration.<br>• <b>Paracetamol</b> - Standard for mild fever/pain.<br>";
+         suggestions += "• <b>Arnica Montana 30C</b> - (Homeopathic) For general shock or aches.<br>";
+      }
+      
+      suggestions += "<br><span class='text-xs opacity-75'><i>⚠️ DISCLAIMER: This is NOT professional medical advice. Please consult a doctor if symptoms persist.</i></span>";
+      return suggestions;
+    }
+
+    function saveSearchHistory(symptoms) {
+      let history = JSON.parse(localStorage.getItem('pharmacyHistory') || '[]');
+      if (history[0] !== symptoms) {
+        history.unshift(symptoms);
+        if (history.length > 5) history.pop(); // Keep only the last 5 searches
+        localStorage.setItem('pharmacyHistory', JSON.stringify(history));
+      }
+      renderSearchHistory();
+    }
+
+    function renderSearchHistory() {
+      const container = document.getElementById('searchHistoryContainer');
+      let history = JSON.parse(localStorage.getItem('pharmacyHistory') || '[]');
+      if (history.length === 0) {
+        container.innerHTML = '<p class="text-sm text-slate-500 italic">No recent searches.</p>';
+        return;
+      }
+      container.innerHTML = history.map(item => `<div class="p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg flex items-center gap-3 cursor-pointer hover:border-blue-400 transition" onclick="document.getElementById('symptomsInput').value='${item.replace(/'/g, "\\'")}'; getMedicineSuggestions();"><i data-lucide="search" class="w-4 h-4 text-slate-400 shrink-0"></i><span class="text-sm truncate">${item}</span></div>`).join('');
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+    
+    window.addEventListener('load', renderSearchHistory);
+  </script>
+</body>
+</html>
