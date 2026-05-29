@@ -27,15 +27,26 @@ const USER_TIMEOUT_MS = 10000;
 app.use(cors());
 app.use(express.json());
 
-// ── Case-Insensitive Route for User Page ─────────────────────
-// Fixes the Linux case-sensitivity issue on Render where User.html != user.html
-app.get(['/user', '/user.html', '/User.html'], (req, res, next) => {
-  const lowerPath = path.join(__dirname, 'www', 'user.html');
-  const upperPath = path.join(__dirname, 'www', 'User.html');
-  if (fs.existsSync(lowerPath)) {
-    return res.sendFile(lowerPath);
-  } else if (fs.existsSync(upperPath)) {
-    return res.sendFile(upperPath);
+// ── Universal Case-Insensitive Route Resolver ────────────────
+// Fixes Linux case-sensitivity issues on Render for ALL pages
+app.use((req, res, next) => {
+  let targetFile = req.path;
+  if (targetFile === '/') targetFile = '/index.html';
+  else if (!targetFile.includes('.')) targetFile += '.html';
+  
+  // ONLY apply to HTML files to prevent security leaks
+  if (!targetFile.endsWith('.html')) return next();
+  
+  const filename = path.basename(targetFile).toLowerCase();
+  const searchDirs = [path.join(__dirname, 'www'), __dirname];
+  
+  for (const dir of searchDirs) {
+    if (!fs.existsSync(dir)) continue;
+    try {
+      const files = fs.readdirSync(dir);
+      const match = files.find(f => f.toLowerCase() === filename);
+      if (match) return res.sendFile(path.join(dir, match));
+    } catch(e) {}
   }
   next();
 });
