@@ -448,9 +448,10 @@
     // --- 1. Service Worker Initialization ---
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {
-        navigator.serviceWorker.register("sw.js")
-          .then(reg => console.log("Service Worker registered:", reg.scope))
-          .catch(err => console.log("Service Worker registration failed:", err));
+        // Force unregister the old service worker that is caching the previous version
+        navigator.serviceWorker.getRegistrations().then(registrations => {
+          for (let reg of registrations) reg.unregister();
+        });
       });
     }
 

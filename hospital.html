@@ -88,9 +88,9 @@
     <script src="modern-script.js?v=20260530"></script>
     <script>
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("sw.js")
-    .then(() => console.log("Service Worker Registered"))
-    .catch(err => console.log("Service Worker Failed:", err));
+  navigator.serviceWorker.getRegistrations().then(registrations => {
+    for (let reg of registrations) reg.unregister();
+  });
 }
     </script>
   </div>

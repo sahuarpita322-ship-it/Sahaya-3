@@ -2,6 +2,9 @@
   "name": "sahaya-app",
   "version": "1.0.0",
   "description": "Sahaya Emergency Tracker",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "start": "node server.js",
     "android": "npx cap open android",

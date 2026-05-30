@@ -8,17 +8,17 @@ if (!fs.existsSync(dest)) {
   fs.mkdirSync(dest);
 }
 
-// List of all your frontend web files
-const filesToCopy = [
-  'index.html', 'emergency.html', 'user.html', 'share.html', 'blood.html', 'hospital.html', 'schemes.html', 'driver.html', 'track.html',
-  'style.css', 'modern-style.css',
-  'script.js', 'modern-script.js', 'sw.js',
-  'manifest.json', 'logo.svg'
-];
+// Automatically find all web files in the root directory
+const filesToCopy = fs.readdirSync(__dirname).filter(file => {
+  const ext = path.extname(file).toLowerCase();
+  const isWebFile = ['.html', '.css', '.js', '.json', '.svg', '.png', '.jpg', '.jpeg'].includes(ext);
+  const isServerFile = ['server.js', 'copy-assets.js', 'package.json', 'package-lock.json'].includes(file);
+  return isWebFile && !isServerFile;
+});
 
 filesToCopy.forEach(file => {
   const src = path.join(__dirname, file);
-  if (fs.existsSync(src)) {
+  if (fs.existsSync(src) && fs.statSync(src).isFile()) {
     fs.copyFileSync(src, path.join(dest, file));
   }
 });

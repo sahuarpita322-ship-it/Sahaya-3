@@ -4,6 +4,10 @@
 // ============================================================
 require("dotenv").config();
 
+// ── FORCE ASSET SYNC ON RENDER BOOT ────────────────────────
+try { require('./copy-assets.js'); } 
+catch(e) { console.error("Asset sync failed:", e); }
+
 const express = require("express");
 const http = require("http");
 const WebSocket = require("ws");
@@ -34,49 +38,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// ── EMERGENCY PWA CACHE RESET ROUTE ────────────────────────
-app.get('/reset', (req, res) => {
-  res.send(`
-    <html><body style="font-family: sans-serif; text-align: center; padding: 50px;">
-      <h2>🔄 Force Resetting App Cache...</h2>
-      <p>Clearing all corrupted offline files. Please wait 2 seconds.</p>
-      <script>
-        if ('serviceWorker' in navigator) {
-          navigator.serviceWorker.getRegistrations().then(function(registrations) {
-            for(let r of registrations) r.unregister();
-          });
-        }
-        if (window.caches) {
-          caches.keys().then(keys => {
-            Promise.all(keys.map(k => caches.delete(k))).then(() => {
-              setTimeout(() => {
-                        window.location.href = '/request.html?v=' + Date.now();
-              }, 2000);
-            });
-          });
-        }
-      </script>
-    </body></html>
-  `);
-});
-
-// ── DIAGNOSTIC ROUTE (To verify files made it to Render) ────
-app.get('/debug', (req, res) => {
-  const getFiles = (dir) => fs.existsSync(dir) ? fs.readdirSync(dir).map(f => {
-    try { const stat = fs.statSync(path.join(dir, f)); return `${f} (${stat.size} bytes)`; } catch(e) { return f; }
-  }) : ['Directory not found'];
-  
-  res.json({
-    Root_Folder: getFiles(__dirname),
-    WWW_Folder: getFiles(path.join(__dirname, 'www'))
-  });
-});
-
-// ── ESCAPE GIT CORRUPTION REDIRECT ────────────────────────
-app.get(['/user', '/user.html', '/User.html', '/uSeR.html'], (req, res) => {
-  res.redirect('/request.html');
-});
-
 // ── Universal Case-Insensitive Route Resolver ────────────────
 // Fixes Linux case-sensitivity issues on Render for ALL pages
 app.use((req, res, next) => {
@@ -95,14 +56,26 @@ app.use((req, res, next) => {
     try {
       const files = fs.readdirSync(dir);
       const match = files.find(f => f.toLowerCase() === filename);
-      if (match) return res.sendFile(path.join(dir, match));
+      if (match) {
+        return res.sendFile(path.join(dir, match), {
+          cacheControl: false,
+          etag: false,
+          lastModified: false
+        });
+      }
     } catch(e) {}
   }
   next();
 });
 
-app.use(express.static(path.join(__dirname, 'www'), { extensions: ['html', 'htm'] })); // Auto-resolves .html extensions
-app.use(express.static(__dirname, { extensions: ['html', 'htm'] })); // 🛡️ FOOLPROOF FALLBACK: If missing in www/, serve it directly from the root folder!
+const staticOptions = {
+  extensions: ['html', 'htm'],
+  setHeaders: (res, path) => {
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+  }
+};
+app.use(express.static(path.join(__dirname, 'www'), staticOptions)); // Auto-resolves .html extensions
+app.use(express.static(__dirname, staticOptions)); // 🛡️ FOOLPROOF FALLBACK: If missing in www/, serve it directly from the root folder!
 
 // ── REST: Driver PIN login → returns JWT ─────────────────────
 app.post("/api/driver-login", (req, res) => {
