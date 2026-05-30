@@ -8,8 +8,8 @@
   "scripts": {
     "start": "node server.js",
     "android": "npx cap open android",
-    "build": "node copy-assets.js",
-    "sync": "npm run build && npx cap sync"
+    "build": "echo \"No build step required\"",
+    "sync": "npx cap sync"
   },
   "dependencies": {
     "@capacitor/android": "^6.0.0",
