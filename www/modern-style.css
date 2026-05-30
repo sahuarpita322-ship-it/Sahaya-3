@@ -499,3 +499,13 @@ html {
     border-color: #334155 !important;
   }
 }
+
+/* Emergency override: ensure readable text in dark mode across rendered pages */
+html.dark, .dark, html.dark body {
+  color: #f1f5f9 !important;
+}
+html.dark h1, html.dark h2, html.dark h3, html.dark h4, html.dark h5, html.dark h6,
+html.dark p, html.dark a, html.dark button, html.dark label, html.dark span, html.dark div, html.dark li {
+  color: #f1f5f9 !important;
+  text-shadow: none !important;
+}
