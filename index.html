@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Sahaya – Emergency Dashboard</title>
   <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="hero-emergency.png">
+  <meta name="theme-color" content="#d32f2f">
   <meta name="description"
     content="Sahaya provides quick access to emergency services, hospitals, blood banks, and government schemes for rural and semi-urban users.">
 
@@ -16,7 +18,7 @@
   </script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
-  <link rel="stylesheet" href="modern-style.css">
+  <link rel="stylesheet" href="modern-style.css?v=20260530">
   
   <!-- Leaflet Map Integration -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
@@ -48,7 +50,7 @@
   </style>
 </head>
 
-<body class="relative min-h-screen text-slate-800 dark:text-slate-100 overflow-x-hidden transition-colors duration-500 font-sans pb-20 md:pb-0" data-page="home">
+<body class="relative min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white overflow-x-hidden transition-colors duration-500 font-sans pb-20 md:pb-0" data-page="home">
   
   <!-- Animated Mesh Background & Particles -->
   <div class="mesh-bg"></div>
@@ -68,43 +70,14 @@
       </div>
 
       <!-- Desktop Menu -->
-      <div class="hidden lg:flex items-center gap-6 text-sm font-medium">
+      <div class="hidden md:flex items-center gap-6 text-sm font-medium">
         <a href="index.html" class="text-blue-600 dark:text-blue-400 font-bold transition">Home</a>
         <a href="hospital.html" class="hover:text-blue-600 dark:hover:text-blue-400 transition">Hospitals</a>
         <a href="blood.html" class="hover:text-blue-600 dark:hover:text-blue-400 transition">Blood</a>
         <a href="emergency.html" class="hover:text-blue-600 dark:hover:text-blue-400 transition">Emergency</a>
         <a href="schemes.html" class="hover:text-blue-600 dark:hover:text-blue-400 transition">Schemes</a>
-        <a href="pharmacy.html" class="hover:text-purple-600 dark:hover:text-purple-400 transition font-semibold text-purple-500 dark:text-purple-400">Pharmacy</a>
-        
-        <!-- Navigation Menu Dropdown -->
-        <div class="relative group">
-          <button class="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 transition font-bold shadow-sm">
-            <i data-lucide="menu" class="w-4 h-4"></i> Menu
-          </button>
-          
-          <div class="absolute right-0 top-full mt-2 w-64 bg-white/90 dark:bg-slate-900/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 flex flex-col py-3 z-50 transform origin-top-right group-hover:scale-100 scale-95">
-            <div class="px-4 py-2 text-xs font-extrabold text-slate-800 dark:text-slate-300 uppercase tracking-wider border-b border-slate-200 dark:border-slate-700 mb-2">All Services</div>
-            <div class="max-h-[60vh] overflow-y-auto px-2 flex flex-col gap-1 custom-scrollbar">
-              <a href="index.html" class="px-4 py-2 rounded-lg hover:bg-green-50 dark:hover:bg-slate-800 transition text-slate-900 dark:text-white font-bold flex items-center gap-3"><i data-lucide="home" class="w-4 h-4 text-green-700 dark:text-green-400"></i> Home</a>
-              <a href="hospital.html" class="px-4 py-2 rounded-lg hover:bg-green-50 dark:hover:bg-slate-800 transition text-slate-900 dark:text-white font-bold flex items-center gap-3"><i data-lucide="building-2" class="w-4 h-4 text-emerald-600 dark:text-emerald-400"></i> Hospitals</a>
-              <a href="blood.html" class="px-4 py-2 rounded-lg hover:bg-green-50 dark:hover:bg-slate-800 transition text-slate-900 dark:text-white font-bold flex items-center gap-3"><i data-lucide="droplet" class="w-4 h-4 text-red-600 dark:text-red-400"></i> Blood</a>
-              <a href="emergency.html" class="px-4 py-2 rounded-lg hover:bg-green-50 dark:hover:bg-slate-800 transition text-slate-900 dark:text-white font-bold flex items-center gap-3"><i data-lucide="phone-call" class="w-4 h-4 text-orange-600 dark:text-orange-400"></i> Emergency</a>
-              <a href="schemes.html" class="px-4 py-2 rounded-lg hover:bg-green-50 dark:hover:bg-slate-800 transition text-slate-900 dark:text-white font-bold flex items-center gap-3"><i data-lucide="file-text" class="w-4 h-4 text-indigo-600 dark:text-indigo-400"></i> Schemes</a>
-              <a href="crowd-management.html" class="px-4 py-2 rounded-lg hover:bg-green-50 dark:hover:bg-slate-800 transition text-slate-900 dark:text-white font-bold flex items-center gap-3"><i data-lucide="users" class="w-4 h-4 text-cyan-600 dark:text-cyan-400"></i> Crowd Management</a>
-              <a href="reporting.html" class="px-4 py-2 rounded-lg hover:bg-red-50 dark:hover:bg-slate-800 transition text-red-700 dark:text-red-400 font-bold flex items-center gap-3"><i data-lucide="shield-alert" class="w-4 h-4"></i> Report Crime</a>
-              <div class="h-px bg-slate-200 dark:bg-slate-700 my-2 mx-2"></div>
-              <a href="share.html" class="px-4 py-2 rounded-lg hover:bg-green-50 dark:hover:bg-slate-800 transition text-slate-900 dark:text-white font-bold flex items-center gap-3"><i data-lucide="share-2" class="w-4 h-4 text-green-700 dark:text-green-400"></i> Share Location</a>
-              <a href="track.html" class="px-4 py-2 rounded-lg hover:bg-green-50 dark:hover:bg-slate-800 transition text-slate-900 dark:text-white font-bold flex items-center gap-3"><i data-lucide="map" class="w-4 h-4 text-cyan-600 dark:text-cyan-400"></i> Track Live</a>
-              <a href="volunteer.html" class="px-4 py-2 rounded-lg hover:bg-green-50 dark:hover:bg-slate-800 transition text-slate-900 dark:text-white font-bold flex items-center gap-3"><i data-lucide="heart-handshake" class="w-4 h-4 text-rose-600 dark:text-rose-400"></i> Volunteers</a>
-              <a href="consultation.html" class="px-4 py-2 rounded-lg hover:bg-teal-50 dark:hover:bg-slate-800 transition text-teal-700 dark:text-teal-400 font-bold flex items-center gap-3"><i data-lucide="video" class="w-4 h-4"></i> Tele-Consult</a>
-              <a href="https://www.practo.com/consult" target="_blank" class="px-4 py-2 rounded-lg hover:bg-indigo-50 dark:hover:bg-slate-800 transition text-indigo-700 dark:text-indigo-400 font-bold flex items-center gap-3"><i data-lucide="stethoscope" class="w-4 h-4"></i> Consult Doctor Now</a>
-              <a href="pharmacy.html" class="px-4 py-2 rounded-lg hover:bg-purple-50 dark:hover:bg-slate-800 transition text-purple-700 dark:text-purple-400 font-bold flex items-center gap-3"><i data-lucide="pill" class="w-4 h-4"></i> Order Medicine</a>
-              <div class="h-px bg-slate-200 dark:bg-slate-700 my-2 mx-2"></div>
-              <a href="driver.html" class="px-4 py-2 rounded-lg hover:bg-green-50 dark:hover:bg-slate-800 transition text-slate-900 dark:text-white font-bold flex items-center gap-3"><i data-lucide="car" class="w-4 h-4 text-slate-600 dark:text-slate-400"></i> Driver Panel</a>
-              <a href="request.html" class="px-4 py-2 rounded-lg hover:bg-red-50 dark:hover:bg-slate-800 transition text-red-700 dark:text-red-400 font-extrabold flex items-center gap-3"><i data-lucide="siren" class="w-4 h-4"></i> Request Ambulance</a>
-            </div>
-          </div>
-        </div>
+        <a href="driver.html" class="px-4 py-2 rounded-full bg-white/20 dark:bg-slate-800/40 hover:bg-white/30 border border-white/30 transition shadow-sm">Driver Panel</a>
+        <a href="reporting.html" class="hover:text-blue-600 dark:hover:text-blue-400 transition font-semibold text-red-500 dark:text-red-400">Report Crime</a>
       </div>
 
       <!-- Actions -->
@@ -117,6 +90,11 @@
             <div class="w-9 h-5 bg-slate-300/50 peer-focus:outline-none rounded-full peer dark:bg-slate-700/50 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-500 shadow-inner"></div>
           </label>
         </div>
+        <!-- Install App Button -->
+        <button id="installAppBtn" class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-emerald-500 to-green-600 text-white font-bold shadow-sm hover:shadow-md hover:scale-105 transition-all text-xs ripple">
+          <i data-lucide="download" class="w-4 h-4"></i> Install
+        </button>
+        
         <!-- Dark Mode Toggle -->
         <button id="theme-toggle" class="p-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 transition ripple" aria-label="Toggle Dark Mode">
           <i data-lucide="moon" class="w-5 h-5 dark:hidden"></i>
@@ -142,11 +120,11 @@
           Live Location Integrated
         </div>
         
-        <h1 class="text-5xl md:text-6xl font-extrabold leading-tight">
+        <h1 class="text-5xl md:text-6xl font-extrabold leading-tight text-slate-900 dark:text-white">
           Smart <span class="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-500">Emergency Help</span><br>at your fingertips.
         </h1>
         
-        <p class="text-lg opacity-80 max-w-xl">
+        <p class="text-lg text-slate-800 dark:text-slate-100 max-w-xl">
           Quickly reach ambulance, police, or fire services and find nearby hospitals, blood banks, and government schemes — with live driver tracking and instant notifications.
         </p>
 
@@ -169,19 +147,19 @@
               🚗 Distance: <span id="ambDistance">-</span> | ⏳ ETA: <span id="ambEta">-</span>
             </p>
           </div>
-          <div class="glass p-4 rounded-2xl border border-white/20 bg-white/15 dark:bg-slate-900/40 shadow-sm hidden sm:block">
-            <p class="text-xs uppercase tracking-[0.25em] opacity-70 mb-2">Local rescue network</p>
-            <p class="font-bold text-lg">24/7 coordination</p>
+          <div class="glass p-4 rounded-2xl border border-white/20 bg-white/15 dark:bg-slate-800/60 shadow-sm hidden sm:block">
+            <p class="text-xs uppercase tracking-[0.25em] text-slate-700 dark:text-slate-200 mb-2">Local rescue network</p>
+            <p class="font-bold text-lg text-slate-900 dark:text-white">24/7 coordination</p>
           </div>
         </div>
 
         <div class="flex flex-wrap items-center gap-4 mt-2">
           <div class="flex bg-white/20 dark:bg-slate-800/40 rounded-full p-1 border border-white/20 shadow-sm" role="group" aria-label="Choose language">
-            <button type="button" onclick="setLanguage('en')" class="px-4 py-1 text-xs font-bold rounded-full hover:bg-white/40 transition">English</button>
-            <button type="button" onclick="setLanguage('hi')" class="px-4 py-1 text-xs font-bold rounded-full hover:bg-white/40 transition">हिन्दी</button>
-            <button type="button" onclick="setLanguage('or')" class="px-4 py-1 text-xs font-bold rounded-full hover:bg-white/40 transition">ଓଡିଆ</button>
+            <button type="button" onclick="setLanguage('en')" class="px-4 py-1 text-xs font-bold rounded-full hover:bg-white/40 transition text-slate-900 dark:text-white">English</button>
+            <button type="button" onclick="setLanguage('hi')" class="px-4 py-1 text-xs font-bold rounded-full hover:bg-white/40 transition text-slate-900 dark:text-white">हिन्दी</button>
+            <button type="button" onclick="setLanguage('or')" class="px-4 py-1 text-xs font-bold rounded-full hover:bg-white/40 transition text-slate-900 dark:text-white">ଓଡିଆ</button>
           </div>
-          <button id="voiceBtn" type="button" class="glass-button px-4 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 hover:bg-white/30 transition shadow-sm">
+          <button id="voiceBtn" type="button" class="glass-button px-4 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 hover:bg-white/30 transition shadow-sm text-slate-900 dark:text-white">
             <i data-lucide="volume-2" class="w-4 h-4"></i> Instructions
           </button>
         </div>
@@ -192,24 +170,24 @@
         <div class="glass-card p-3 w-full border-white/30 shadow-[0_8px_32px_0_rgba(31,38,135,0.15)] relative group overflow-hidden">
           <div class="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-transparent to-purple-400/10 pointer-events-none"></div>
           <div class="flex justify-between items-center px-2 pb-2 relative">
-            <p class="text-sm font-bold opacity-80 flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4 text-red-500"></i> Live Dispatch Map</p>
-            <button onclick="copyLocation()" class="glass-button text-xs font-semibold px-3 py-1 rounded-full hover:bg-white/40 transition">Share</button>
+            <p class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4 text-red-500"></i> Live Dispatch Map</p>
+            <button onclick="copyLocation()" class="glass-button text-xs font-semibold px-3 py-1 rounded-full hover:bg-white/40 transition text-slate-900 dark:text-white">Share</button>
           </div>
           <!-- Leaflet Map Container -->
           <div id="userMap" class="w-full h-[300px] md:h-[400px] rounded-xl overflow-hidden relative z-0"></div>
         </div>
 
         <div class="glass-card absolute -top-8 right-0 hidden xl:flex flex-col gap-3 p-4 w-[240px] border-white/20 shadow-xl float-animation">
-          <div class="text-xs uppercase tracking-[0.28em] opacity-70">Driver status</div>
+          <div class="text-xs uppercase tracking-[0.28em] text-slate-700 dark:text-slate-200">Driver status</div>
           <div class="flex items-center gap-3">
             <span class="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-600 flex items-center justify-center"><i data-lucide="user-check" class="w-5 h-5"></i></span>
             <div>
-              <p class="font-bold">Driver found</p>
-              <p class="text-sm opacity-70">Nearby responder en route</p>
+              <p class="font-bold text-slate-900 dark:text-white">Driver found</p>
+              <p class="text-sm text-slate-700 dark:text-slate-200">Nearby responder en route</p>
             </div>
           </div>
-          <div class="flex items-center justify-between text-sm opacity-80">
-            <span>ETA</span>
+          <div class="flex items-center justify-between text-sm text-slate-700 dark:text-slate-200">
+            <span class="text-slate-900 dark:text-slate-100">ETA</span>
             <span class="font-bold">4 mins</span>
           </div>
         </div>
@@ -219,10 +197,10 @@
     <!-- Immediate Help Row & Controls -->
     <div class="mt-4 mb-10 flex flex-col md:flex-row justify-between items-center gap-4">
       <div class="flex items-center gap-3">
-        <h2 class="text-sm font-bold uppercase tracking-widest opacity-60 ml-2">Quick Dial Help</h2>
+        <h2 class="text-sm font-bold uppercase tracking-widest text-slate-800 dark:text-slate-100 ml-2">Quick Dial Help</h2>
         <!-- Security Child Lock -->
         <div class="glass px-3 py-1 rounded-full flex items-center gap-2">
-          <button id="setPasswordBtn" class="text-xs font-semibold hover:text-blue-500 transition border-r border-white/20 pr-2">Set PIN</button>
+          <button id="setPasswordBtn" class="text-xs font-semibold hover:text-blue-500 transition border-r border-white/20 pr-2 text-slate-900 dark:text-white">Set PIN</button>
           <button id="childLockBtn" class="text-xs font-semibold text-green-600 dark:text-green-400 flex items-center gap-1 hover:opacity-70 transition">
             <i data-lucide="unlock" id="lockIcon" class="w-3 h-3"></i> <span>Unlocked</span>
           </button>
@@ -232,7 +210,7 @@
         🩺 Random First-Aid Tip
       </button>
     </div>
-    <div id="firstAidTip" class="text-sm font-medium mb-6 px-4 border-l-2 border-blue-500 text-slate-600 dark:text-slate-300">Need help? Tap "Random First-Aid Tip".</div>
+    <div id="firstAidTip" class="text-sm font-medium mb-6 px-4 border-l-2 border-blue-500 text-slate-800 dark:text-slate-200">Need help? Tap "Random First-Aid Tip".</div>
 
     <!-- Emergency Quick Actions -->
     <div id="emergencyButtons" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 transition-all duration-300">
@@ -242,8 +220,8 @@
         <div class="w-12 h-12 rounded-xl bg-red-500/20 text-red-600 dark:text-red-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
           <i data-lucide="ambulance"></i>
         </div>
-        <h3 class="text-xl font-bold mb-1">Call Ambulance</h3>
-        <p class="text-sm opacity-70 font-semibold">Dial 108</p>
+        <h3 class="text-xl font-bold mb-1 text-slate-900 dark:text-white">Call Ambulance</h3>
+        <p class="text-sm text-slate-700 dark:text-slate-200 font-semibold">Dial 108</p>
       </button>
       
       <!-- Police -->
@@ -252,8 +230,8 @@
         <div class="w-12 h-12 rounded-xl bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
           <i data-lucide="shield-alert"></i>
         </div>
-        <h3 class="text-xl font-bold mb-1">Call Police</h3>
-        <p class="text-sm opacity-70 font-semibold">Dial 100</p>
+        <h3 class="text-xl font-bold mb-1 text-slate-900 dark:text-white">Call Police</h3>
+        <p class="text-sm text-slate-700 dark:text-slate-200 font-semibold">Dial 100</p>
       </button>
 
       <!-- Fire -->
@@ -262,45 +240,45 @@
         <div class="w-12 h-12 rounded-xl bg-orange-500/20 text-orange-600 dark:text-orange-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
           <i data-lucide="flame"></i>
         </div>
-        <h3 class="text-xl font-bold mb-1">Fire Brigade</h3>
-        <p class="text-sm opacity-70 font-semibold">Dial 101</p>
+        <h3 class="text-xl font-bold mb-1 text-slate-900 dark:text-white">Fire Brigade</h3>
+        <p class="text-sm text-slate-700 dark:text-slate-200 font-semibold">Dial 101</p>
       </button>
     </div>
 
     <!-- Emergency Numbers Section -->
     <div class="mb-12">
-      <h2 class="text-sm font-bold uppercase tracking-widest opacity-60 mb-6 ml-2">Emergency Hotline Numbers</h2>
+      <h2 class="text-sm font-bold uppercase tracking-widest text-slate-800 dark:text-slate-100 mb-6 ml-2">Emergency Hotline Numbers</h2>
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
         <!-- 108 Ambulance -->
         <a href="emergency.html" target="_blank" class="glass-card p-5 text-center group hover:border-red-500/50 transition border-red-500/20 block cursor-pointer">
           <div class="text-4xl font-extrabold text-red-600 dark:text-red-400 mb-2">108</div>
-          <p class="text-sm font-bold opacity-80">Ambulance Service</p>
-          <p class="text-xs opacity-60 mt-2">24/7 Emergency</p>
-          <div class="mt-3 w-full glass py-2 rounded-lg text-xs font-bold group-hover:bg-white/30 transition">Open</div>
+          <p class="text-sm font-bold text-slate-900 dark:text-white">Ambulance Service</p>
+          <p class="text-xs text-slate-700 dark:text-slate-200 mt-2">24/7 Emergency</p>
+          <div class="mt-3 w-full glass py-2 rounded-lg text-xs font-bold group-hover:bg-white/30 transition text-slate-900 dark:text-white">Open</div>
         </a>
 
         <!-- 100 Police -->
         <a href="emergency.html" target="_blank" class="glass-card p-5 text-center group hover:border-blue-500/50 transition border-blue-500/20 block cursor-pointer">
           <div class="text-4xl font-extrabold text-blue-600 dark:text-blue-400 mb-2">100</div>
-          <p class="text-sm font-bold opacity-80">Police Emergency</p>
-          <p class="text-xs opacity-60 mt-2">24/7 Available</p>
-          <div class="mt-3 w-full glass py-2 rounded-lg text-xs font-bold group-hover:bg-white/30 transition">Open</div>
+          <p class="text-sm font-bold text-slate-900 dark:text-white">Police Emergency</p>
+          <p class="text-xs text-slate-700 dark:text-slate-200 mt-2">24/7 Available</p>
+          <div class="mt-3 w-full glass py-2 rounded-lg text-xs font-bold group-hover:bg-white/30 transition text-slate-900 dark:text-white">Open</div>
         </a>
 
         <!-- 101 Fire -->
         <a href="emergency.html" target="_blank" class="glass-card p-5 text-center group hover:border-orange-500/50 transition border-orange-500/20 block cursor-pointer">
           <div class="text-4xl font-extrabold text-orange-600 dark:text-orange-400 mb-2">101</div>
-          <p class="text-sm font-bold opacity-80">Fire Brigade</p>
-          <p class="text-xs opacity-60 mt-2">Fire & Rescue</p>
-          <div class="mt-3 w-full glass py-2 rounded-lg text-xs font-bold group-hover:bg-white/30 transition">Open</div>
+          <p class="text-sm font-bold text-slate-900 dark:text-white">Fire Brigade</p>
+          <p class="text-xs text-slate-700 dark:text-slate-200 mt-2">Fire & Rescue</p>
+          <div class="mt-3 w-full glass py-2 rounded-lg text-xs font-bold group-hover:bg-white/30 transition text-slate-900 dark:text-white">Open</div>
         </a>
 
         <!-- 112 General -->
         <a href="emergency.html" target="_blank" class="glass-card p-5 text-center group hover:border-purple-500/50 transition border-purple-500/20 block cursor-pointer">
           <div class="text-4xl font-extrabold text-purple-600 dark:text-purple-400 mb-2">112</div>
-          <p class="text-sm font-bold opacity-80">General Emergency</p>
-          <p class="text-xs opacity-60 mt-2">All Services</p>
-          <div class="mt-3 w-full glass py-2 rounded-lg text-xs font-bold group-hover:bg-white/30 transition">Open</div>
+          <p class="text-sm font-bold text-slate-900 dark:text-white">General Emergency</p>
+          <p class="text-xs text-slate-700 dark:text-slate-200 mt-2">All Services</p>
+          <div class="mt-3 w-full glass py-2 rounded-lg text-xs font-bold group-hover:bg-white/30 transition text-slate-900 dark:text-white">Open</div>
         </a>
       </div>
     </div>
@@ -313,27 +291,27 @@
           <div class="w-12 h-12 rounded-xl bg-red-500/20 text-red-600 dark:text-red-400 flex items-center justify-center">
             <i data-lucide="siren" class="w-6 h-6"></i>
           </div>
-          <h3 class="text-2xl font-bold">Request Ambulance</h3>
+          <h3 class="text-2xl font-bold text-slate-900 dark:text-white">Request Ambulance</h3>
         </div>
-        <p class="text-sm opacity-75 mb-6">Send an ambulance request to nearby registered drivers. They will respond to your emergency location.</p>
+        <p class="text-sm text-slate-800 dark:text-slate-100 mb-6">Send an ambulance request to nearby registered drivers. They will respond to your emergency location.</p>
         <div class="space-y-3 mb-6">
           <div class="flex items-center gap-3 text-sm">
             <span class="w-5 h-5 rounded-full bg-green-500/30 flex items-center justify-center"><i data-lucide="check" class="w-3 h-3 text-green-600"></i></span>
-            <span>Real-time driver tracking</span>
+            <span class="text-slate-900 dark:text-white">Real-time driver tracking</span>
           </div>
           <div class="flex items-center gap-3 text-sm">
             <span class="w-5 h-5 rounded-full bg-green-500/30 flex items-center justify-center"><i data-lucide="check" class="w-3 h-3 text-green-600"></i></span>
-            <span>Live ETA updates</span>
+            <span class="text-slate-900 dark:text-white">Live ETA updates</span>
           </div>
           <div class="flex items-center gap-3 text-sm">
             <span class="w-5 h-5 rounded-full bg-green-500/30 flex items-center justify-center"><i data-lucide="check" class="w-3 h-3 text-green-600"></i></span>
-            <span>Backup driver selection</span>
+            <span class="text-slate-900 dark:text-white">Backup driver selection</span>
           </div>
         </div>
         <a href="user.html" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-red-500 to-rose-600 text-white font-bold shadow-lg shadow-red-500/30 hover:shadow-red-500/50 hover:-translate-y-1 transition-all flex items-center justify-center gap-2 text-center">
           <i data-lucide="send" class="w-5 h-5"></i> Request Ambulance
         </a>
-        <p class="text-xs opacity-60 mt-4 text-center">Or dial 108 for direct ambulance service</p>
+        <p class="text-xs text-slate-800 dark:text-slate-200 mt-4 text-center">Or dial 108 for direct ambulance service</p>
       </div>
 
       <!-- Driver Status & Information -->
@@ -342,7 +320,7 @@
           <div class="w-12 h-12 rounded-xl bg-green-500/20 text-green-600 dark:text-green-400 flex items-center justify-center">
             <i data-lucide="users" class="w-6 h-6"></i>
           </div>
-          <h3 class="text-2xl font-bold">Available Drivers</h3>
+          <h3 class="text-2xl font-bold text-slate-900 dark:text-white">Available Drivers</h3>
         </div>
         <div id="driverStatus" class="space-y-4">
           <div class="flex items-center justify-between p-4 rounded-xl bg-white/20 dark:bg-slate-800/40 border border-green-500/20">
@@ -350,17 +328,17 @@
               <p class="font-bold text-green-600 dark:text-green-400 flex items-center gap-2">
                 <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> Drivers Available
               </p>
-              <p class="text-sm opacity-70 mt-1">Nearby ambulances ready to respond</p>
+          <p class="text-sm text-slate-800 dark:text-slate-200 mt-1">Nearby ambulances ready to respond</p>
             </div>
             <div class="text-center">
-              <p class="text-3xl font-bold" id="availableDriverCount">-</p>
-              <p class="text-xs opacity-60">active</p>
+              <p class="text-3xl font-bold text-slate-900 dark:text-white" id="availableDriverCount">-</p>
+          <p class="text-xs text-slate-800 dark:text-slate-200">active</p>
             </div>
           </div>
           
           <div class="space-y-3 max-h-48 overflow-y-auto">
-            <div id="driversList" class="text-sm opacity-70">
-              <p class="text-center py-4">Loading driver information...</p>
+            <div id="driversList" class="text-sm text-slate-800 dark:text-slate-200">
+              <p class="text-center py-4 text-slate-800 dark:text-slate-200">Loading driver information...</p>
             </div>
           </div>
 
@@ -373,15 +351,15 @@
 
     <!-- Dashboard Features -->
     <div class="mb-12">
-      <h2 class="text-sm font-bold uppercase tracking-widest opacity-60 mb-6 ml-2">Services & Features</h2>
+      <h2 class="text-sm font-bold uppercase tracking-widest text-slate-800 dark:text-slate-100 mb-6 ml-2">Services & Features</h2>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         
         <a href="share.html" class="glass-card p-6 group block text-left">
           <div class="w-10 h-10 rounded-lg bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-4 group-hover:scale-110 transition">
             <i data-lucide="share-2"></i>
           </div>
-          <h4 class="font-bold text-lg mb-1">Share Location</h4>
-          <p class="text-sm opacity-70 mb-4">Send link to contacts</p>
+          <h4 class="font-bold text-lg mb-1 text-slate-900 dark:text-white">Share Location</h4>
+          <p class="text-sm text-slate-700 dark:text-slate-200 mb-4">Send link to contacts</p>
           <div class="w-full h-1 bg-white/20 rounded overflow-hidden"><div class="w-1/3 h-full bg-indigo-500"></div></div>
         </a>
 
@@ -389,8 +367,8 @@
           <div class="w-10 h-10 rounded-lg bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 flex items-center justify-center mb-4 group-hover:scale-110 transition">
             <i data-lucide="map"></i>
           </div>
-          <h4 class="font-bold text-lg mb-1">Track Live</h4>
-          <p class="text-sm opacity-70 mb-4">Monitor active routes</p>
+          <h4 class="font-bold text-lg mb-1 text-slate-900 dark:text-white">Track Live</h4>
+          <p class="text-sm text-slate-700 dark:text-slate-200 mb-4">Monitor active routes</p>
           <div class="w-full h-1 bg-white/20 rounded overflow-hidden"><div class="w-2/3 h-full bg-cyan-500"></div></div>
         </a>
 
@@ -398,8 +376,8 @@
           <div class="w-10 h-10 rounded-lg bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-4 group-hover:scale-110 transition">
             <i data-lucide="building-2"></i>
           </div>
-          <h4 class="font-bold text-lg mb-1">Hospitals</h4>
-          <p class="text-sm opacity-70 mb-4">Nearby care centers</p>
+          <h4 class="font-bold text-lg mb-1 text-slate-900 dark:text-white">Hospitals</h4>
+          <p class="text-sm text-slate-700 dark:text-slate-200 mb-4">Nearby care centers</p>
           <div class="w-full h-1 bg-white/20 rounded overflow-hidden"><div class="w-1/2 h-full bg-emerald-500"></div></div>
         </a>
 
@@ -407,18 +385,9 @@
           <div class="w-10 h-10 rounded-lg bg-rose-500/20 text-rose-600 dark:text-rose-400 flex items-center justify-center mb-4 group-hover:scale-110 transition">
             <i data-lucide="users"></i>
           </div>
-          <h4 class="font-bold text-lg mb-1">Volunteers</h4>
-          <p class="text-sm opacity-70 mb-4">Local first responders</p>
+          <h4 class="font-bold text-lg mb-1 text-slate-900 dark:text-white">Volunteers</h4>
+          <p class="text-sm text-slate-700 dark:text-slate-200 mb-4">Local first responders</p>
           <div class="w-full h-1 bg-white/20 rounded overflow-hidden"><div class="w-3/4 h-full bg-rose-500"></div></div>
-        </a>
-
-        <a href="consultation.html" class="glass-card p-6 group block text-left">
-          <div class="w-10 h-10 rounded-lg bg-teal-500/20 text-teal-600 dark:text-teal-400 flex items-center justify-center mb-4 group-hover:scale-110 transition">
-            <i data-lucide="video"></i>
-          </div>
-          <h4 class="font-bold text-lg mb-1 text-slate-900 dark:text-white">Tele-Consult</h4>
-          <p class="text-sm text-slate-700 dark:text-slate-200 mb-4">Live video doctor consultation</p>
-          <div class="w-full h-1 bg-white/20 rounded overflow-hidden"><div class="w-1/2 h-full bg-teal-500"></div></div>
         </a>
 
         <a href="reporting.html" class="glass-card p-6 group block text-left border-red-500/20 bg-gradient-to-br hover:from-red-500/10 hover:to-orange-500/10">
@@ -428,24 +397,6 @@
           <h4 class="font-bold text-lg mb-1 text-slate-900 dark:text-white">Report Crime</h4>
           <p class="text-sm text-slate-700 dark:text-slate-200 mb-4">Online complaints & SOS</p>
           <div class="w-full h-1 bg-white/20 rounded overflow-hidden"><div class="w-2/3 h-full bg-red-500"></div></div>
-        </a>
-
-        <a href="https://www.practo.com/consult" target="_blank" class="glass-card p-6 group block text-left border-blue-500/20 bg-gradient-to-br hover:from-blue-500/10 hover:to-indigo-500/10">
-          <div class="w-10 h-10 rounded-lg bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-4 group-hover:scale-110 transition shadow-[0_0_15px_rgba(59,130,246,0.3)]">
-            <i data-lucide="stethoscope"></i>
-          </div>
-          <h4 class="font-bold text-lg mb-1 text-slate-900 dark:text-white">Consult Doctor Now</h4>
-          <p class="text-sm text-slate-700 dark:text-slate-200 mb-4">Trusted platforms (Practo)</p>
-          <div class="w-full h-1 bg-white/20 rounded overflow-hidden"><div class="w-3/4 h-full bg-blue-500"></div></div>
-        </a>
-
-        <a href="pharmacy.html" class="glass-card p-6 group block text-left border-purple-500/20 bg-gradient-to-br hover:from-purple-500/10 hover:to-fuchsia-500/10">
-          <div class="w-10 h-10 rounded-lg bg-purple-500/20 text-purple-600 dark:text-purple-400 flex items-center justify-center mb-4 group-hover:scale-110 transition shadow-[0_0_15px_rgba(168,85,247,0.3)]">
-            <i data-lucide="pill"></i>
-          </div>
-          <h4 class="font-bold text-lg mb-1 text-slate-900 dark:text-white">Order Medicine</h4>
-          <p class="text-sm text-slate-700 dark:text-slate-200 mb-4">AI suggestions & Truemeds</p>
-          <div class="w-full h-1 bg-white/20 rounded overflow-hidden"><div class="w-2/3 h-full bg-purple-500"></div></div>
         </a>
 
       </div>
@@ -459,15 +410,19 @@
     </button>
     <div id="assistantPanel" class="glass-card mt-4 p-5 w-[85vw] max-w-sm absolute bottom-20 left-0 transition-all duration-300 transform scale-95 opacity-0 pointer-events-none origin-bottom-left" hidden>
       <div class="flex justify-between items-center mb-3 border-b border-white/20 pb-2">
-        <strong class="font-bold text-lg">SAHAYA Assistant</strong>
+        <strong class="font-bold text-lg text-slate-900 dark:text-white">SAHAYA Assistant</strong>
         <button id="assistantClose" class="w-8 h-8 rounded-full glass flex items-center justify-center hover:bg-white/40 transition">✕</button>
       </div>
-      <div id="assistantStatus" class="text-sm font-semibold opacity-70 mb-3">Tap the mic and speak</div>
-      <div id="assistantTranscript" class="text-sm font-bold mb-3 italic" aria-live="polite"></div>
-      <div id="assistantResponse" class="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-5 bg-white/40 dark:bg-slate-900/40 p-3 rounded-xl border border-white/20"></div>
-      <div class="flex gap-3">
-        <button id="assistantMic" class="flex-1 glass bg-blue-500/20 py-2.5 rounded-xl text-sm font-bold hover:bg-blue-500/40 transition">🎤 Listen</button>
-        <button id="assistantStop" class="flex-1 glass bg-red-500/20 py-2.5 rounded-xl text-sm font-bold hover:bg-red-500/40 transition" hidden>Stop</button>
+      <!-- Chat Interface -->
+      <div id="chatHistory" class="h-48 overflow-y-auto mb-3 space-y-2 text-sm flex flex-col scroll-smooth">
+        <div class="bg-white/40 dark:bg-slate-800/60 p-2 rounded-lg max-w-[85%] self-start border border-white/20 text-slate-800 dark:text-slate-200">
+          Hi! I am the Sahaya AI. How can I help you today?
+        </div>
+      </div>
+      <div class="flex gap-2">
+        <input type="text" id="assistantInput" placeholder="Ask anything..." class="flex-1 glass bg-white/40 dark:bg-slate-900/40 border border-white/20 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-white outline-none placeholder-slate-500 dark:placeholder-slate-400 focus:border-blue-500 transition">
+        <button id="assistantSend" class="w-10 h-10 shrink-0 rounded-xl glass bg-blue-500 text-white flex items-center justify-center hover:bg-blue-600 transition shadow-md">➤</button>
+        <button id="assistantMic" class="w-10 h-10 shrink-0 rounded-xl glass bg-slate-200 dark:bg-slate-800 flex items-center justify-center hover:bg-slate-300 dark:hover:bg-slate-700 transition border border-white/20">🎤</button>
       </div>
     </div>
   </div>
@@ -475,15 +430,10 @@
   <!-- Mobile Bottom Nav -->
   <div class="md:hidden fixed bottom-0 w-full glass border-t border-white/20 dark:border-white/10 z-50 px-6 py-3 flex justify-between items-center pb-safe">
     <a href="index.html" class="flex flex-col items-center gap-1 text-blue-600 dark:text-blue-400"><i data-lucide="home" class="w-6 h-6"></i><span class="text-[10px] font-bold">Home</span></a>
-    <a href="track.html" class="flex flex-col items-center gap-1 opacity-60 hover:opacity-100 transition"><i data-lucide="map" class="w-6 h-6"></i><span class="text-[10px] font-bold">Track</span></a>
-    <a href="user.html" class="flex flex-col items-center gap-1 -mt-5 relative">
-      <div class="w-12 h-12 rounded-full bg-red-500 flex items-center justify-center text-white shadow-lg shadow-red-500/40 border-4 border-white dark:border-slate-900">
-        <i data-lucide="siren" class="w-6 h-6"></i>
-      </div>
-      <span class="text-[10px] font-bold text-red-500">SOS</span>
-    </a>
-    <a href="driver.html" class="flex flex-col items-center gap-1 opacity-60 hover:opacity-100 transition"><i data-lucide="ambulance" class="w-6 h-6"></i><span class="text-[10px] font-bold">Driver</span></a>
-    <a href="emergency.html" class="flex flex-col items-center gap-1 opacity-60 hover:opacity-100 transition"><i data-lucide="phone-call" class="w-6 h-6"></i><span class="text-[10px] font-bold">Dial</span></a>
+    <a href="track.html" class="flex flex-col items-center gap-1 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100 transition"><i data-lucide="map" class="w-6 h-6"></i><span class="text-[10px] font-bold">Track</span></a>
+    <button onclick="sendEmergency()" class="flex flex-col items-center gap-1 -mt-5 relative"><div class="w-12 h-12 rounded-full bg-red-500 flex items-center justify-center text-white shadow-lg shadow-red-500/40 border-4 border-white dark:border-slate-900"><i data-lucide="siren" class="w-6 h-6"></i></div><span class="text-[10px] font-bold text-red-500">SOS</span></button>
+    <a href="driver.html" class="flex flex-col items-center gap-1 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100 transition"><i data-lucide="ambulance" class="w-6 h-6"></i><span class="text-[10px] font-bold">Driver</span></a>
+    <a href="emergency.html" class="flex flex-col items-center gap-1 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100 transition"><i data-lucide="phone-call" class="w-6 h-6"></i><span class="text-[10px] font-bold">Dial</span></a>
   </div>
 
   <!-- Toast Container -->
@@ -498,40 +448,11 @@
     // --- 1. Service Worker Initialization ---
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {
-        // Force unregister any stuck service workers
-        navigator.serviceWorker.getRegistrations().then(registrations => {
-          for (let reg of registrations) reg.unregister();
-        });
-
-        // Register with a timestamp to bypass browser cache
-        navigator.serviceWorker.register("sw.js?v=" + new Date().getTime())
-          .then(reg => {
-            console.log("Service Worker registered:", reg.scope);
-            reg.update();
-          })
+        navigator.serviceWorker.register("sw.js")
+          .then(reg => console.log("Service Worker registered:", reg.scope))
           .catch(err => console.log("Service Worker registration failed:", err));
       });
     }
-
-    // --- 2. Voice Assistant Toggle UI Logic Fixes ---
-    document.getElementById('assistantToggle').addEventListener('click', function() {
-      const panel = document.getElementById('assistantPanel');
-      if (panel.hidden) {
-        panel.hidden = false;
-        // Micro-interaction
-        requestAnimationFrame(() => {
-          panel.classList.remove('scale-95', 'opacity-0', 'pointer-events-none');
-          panel.classList.add('scale-100', 'opacity-100', 'pointer-events-auto');
-        });
-      } else {
-        panel.classList.remove('scale-100', 'opacity-100', 'pointer-events-auto');
-        panel.classList.add('scale-95', 'opacity-0', 'pointer-events-none');
-        setTimeout(() => { panel.hidden = true; }, 300);
-      }
-    });
-    document.getElementById('assistantClose').addEventListener('click', () => {
-      document.getElementById('assistantToggle').click();
-    });
 
     // --- 3. Child Lock Logic ---
     let isLocked = false;
@@ -594,6 +515,37 @@
       }
       originalCallNumber(number);
     };
+
+    // --- 4. PWA Custom Install Button Logic ---
+    let deferredPrompt;
+    const installAppBtn = document.getElementById('installAppBtn');
+
+    // Hide if already installed
+    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+      installAppBtn.style.display = 'none';
+    }
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+    });
+
+    installAppBtn.addEventListener('click', async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        deferredPrompt = null;
+        installAppBtn.style.display = 'none';
+      } else {
+        // Fallback for iOS or if already dismissed/not ready
+        showToast("Tap your browser's menu (⋮ or Share icon) and select 'Add to Home screen'", "info");
+      }
+    });
+
+    window.addEventListener('appinstalled', () => {
+      installAppBtn.style.display = 'none';
+      showToast('Sahaya installed successfully!', 'success');
+    });
   </script>
 
   <!-- Original Map & WebSocket Logic -->
@@ -610,9 +562,6 @@
 
     function getWebSocketURL() {
       if (window.location.protocol === "file:") return "ws://localhost:5500";
-      if ((window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost") && window.location.port !== "5500") {
-        return "ws://localhost:5500";
-      }
       const WS_PROTOCOL = window.location.protocol === "https:" ? "wss:" : "ws:";
       const WS_PORT = window.location.port ? `:${window.location.port}` : "";
       return `${WS_PROTOCOL}//${window.location.hostname}${WS_PORT}`;
@@ -658,7 +607,7 @@
           }
 
           if (data.type === "requestAccepted") {
-            document.getElementById("statusText").textContent = "Help is on the way!";
+            document.getElementById("statusText").textContent = "Ambulance is on the way!";
             document.getElementById("ambulanceStatus").classList.remove("hidden", "border-yellow-500", "border-red-500");
             document.getElementById("ambulanceStatus").classList.add("border-green-500", "bg-green-500/10");
             document.getElementById("ambulanceInfo").classList.remove("hidden");
@@ -679,7 +628,6 @@
 
       ws.onerror = function (error) {
         console.error("WebSocket error:", error);
-        if (typeof showToast === 'function') showToast("Live Server disconnected. Please run node server.js", "error");
       };
 
       ws.onclose = function () {
@@ -828,7 +776,7 @@
 
       const message = {
         type: "emergency",
-          userId: myUserId + '|national',
+        userId: myUserId,
         lat: userLocation.lat,
         lng: userLocation.lng
       };
@@ -844,14 +792,7 @@
       document.getElementById("ambulanceStatus").classList.add("border-green-500", "bg-green-500/10");
       document.getElementById("ambulanceInfo").classList.add("hidden");
       
-      setTimeout(() => {
-        if (!ws || ws.readyState !== WebSocket.OPEN) {
-          document.getElementById("statusText").textContent = "❌ Server Offline. Start node server.js";
-          document.getElementById("ambulanceStatus").classList.remove("border-green-500", "bg-green-500/10");
-          document.getElementById("ambulanceStatus").classList.add("border-red-500", "bg-red-500/10");
-        }
-      }, 3000);
-
+      
       // Scroll up to view the map
       document.getElementById("userMap").scrollIntoView({behavior: "smooth", block: "center"});
     }
@@ -879,9 +820,9 @@
 
       if (!activeDrivers || activeDrivers.length === 0) {
         driversList.innerHTML = `
-          <div class="text-center py-4 opacity-60">
-            <p class="text-sm font-medium">No drivers available at the moment</p>
-            <p class="text-xs mt-1">Try calling 108 for emergency ambulance</p>
+          <div class="text-center py-4 text-slate-600 dark:text-slate-300">
+            <p class="text-sm font-medium text-slate-800 dark:text-slate-200">No drivers available at the moment</p>
+            <p class="text-xs mt-1 text-slate-800 dark:text-slate-200">Try calling 108 for emergency ambulance</p>
           </div>
         `;
         return;
@@ -896,8 +837,8 @@
                 ${String.fromCharCode(65 + idx)}
               </span>
               <div>
-                <p class="font-bold text-sm">${driver.userId ? driver.userId.substring(0, 20) : 'Ambulance ' + (idx + 1)}</p>
-                <p class="text-xs opacity-60">Ready to assist</p>
+                <p class="font-bold text-sm text-slate-900 dark:text-white">${driver.userId ? driver.userId.substring(0, 20) : 'Ambulance ' + (idx + 1)}</p>
+                <p class="text-xs text-slate-700 dark:text-slate-200">Ready to assist</p>
               </div>
             </div>
             <span class="text-xs bg-green-500/30 text-green-700 dark:text-green-300 px-2 py-1 rounded-full font-bold">Online</span>
@@ -907,7 +848,7 @@
 
       if (activeDrivers.length > 3) {
         driversList.innerHTML += `
-          <div class="text-center py-2 text-xs opacity-60">
+          <div class="text-center py-2 text-xs text-slate-600 dark:text-slate-300">
             +${activeDrivers.length - 3} more drivers available
           </div>
         `;
@@ -922,8 +863,5 @@
       updateDriverCount();
     });
   </script>
-</body>
-
-</html>
 </body>
 </html>

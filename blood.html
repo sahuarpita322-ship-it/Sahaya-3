@@ -11,7 +11,7 @@
 
   <link rel="stylesheet" href="style.css?v=20260530">
 </head>
-<body data-page="blood" style="padding-bottom: 80px;">
+<body data-page="blood">
   <div class="app" role="main">
     <a href="index.html" class="btn-back">
       <span>⬅</span> Back to Home
@@ -77,14 +77,12 @@
     </div>
     <style> @media (min-width: 768px) { .mobile-nav { display: none; } } </style>
 
-    <script src="script.js"></script>
+    <script src="script.js?v=20260530"></script>
+    <script src="modern-script.js?v=20260530"></script>
     <script>
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.getRegistrations().then(registrations => {
-    for (let reg of registrations) reg.unregister();
-  });
-  navigator.serviceWorker.register("sw.js?v=" + new Date().getTime())
-    .then(reg => reg.update())
+  navigator.serviceWorker.register("sw.js")
+    .then(() => console.log("Service Worker Registered"))
     .catch(err => console.log("Service Worker Failed:", err));
 }
     </script>
